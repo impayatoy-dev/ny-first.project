@@ -27,52 +27,74 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-.wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
-.demo-banner { background: var(--bad-bg); color: var(--bad); font-weight: 600; text-align: center; padding: 8px 16px; font-size: 13px; }
-header.top { padding-top: 16px; }
-.eyebrow { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-h1 { font-size: 22px; margin: 2px 0 4px; }
-h2 { font-size: 15px; margin: 0; }
-h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
+h1, h2, h3 { margin: 0; }
+h2 { font-size: 15px; }
+h3 { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
 .sub { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; min-width: 0; }
-.card-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-select, input[type="search"], input[type="number"] {
+.eyebrow { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.demo-banner { background: var(--bad-bg); color: var(--bad); font-weight: 600; text-align: center; padding: 6px 16px; font-size: 13px; }
+
+select, input[type="search"], input[type="number"], input[type="text"] {
   font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
   border-radius: 8px; padding: 7px 10px; min-width: 0; max-width: 100%;
 }
 button { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
 button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.ghost { border-color: transparent; color: var(--accent); padding: 4px 8px; }
-button:focus-visible, select:focus-visible, input:focus-visible, .study-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
 
-/* planning profile */
-.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end; }
-.plan-ep { display: flex; flex-wrap: wrap; gap: 6px; }
-.plan-ep label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
-.plan-ep input { margin: 0; }
-.plan-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+/* top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; gap: 12px; align-items: center; padding: 10px 16px; flex-wrap: wrap;
+}
+.topbar .brand { min-width: 0; }
+.search-wrap { flex: 1 1 320px; min-width: 0; position: relative; }
+.search-wrap input { width: 100%; padding: 9px 12px 9px 34px; border-radius: 10px; font-size: 15px; }
+.search-wrap::before { content: "⌕"; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; }
 
-/* layout */
-.layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 900px) { .layout { grid-template-columns: 260px 1fr; align-items: start; } .filters { position: sticky; top: 16px; } }
-.filters { max-height: none; }
-.facet { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
-.facet:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+/* shell: filters | results | side panel */
+.shell { display: grid; gap: 16px; padding: 16px; max-width: 1600px; margin: 0 auto; grid-template-columns: 1fr; align-items: start; }
+.shell.filters-min { --fw: 56px; }
+@media (min-width: 900px) {
+  .shell { grid-template-columns: var(--fw, 280px) minmax(0, 1fr); }
+  .filters-panel { position: sticky; top: 76px; }
+}
+@media (min-width: 1100px) {
+  .shell.side-open { grid-template-columns: var(--fw, 280px) minmax(0, 1fr) 460px; }
+}
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.panel-body { padding: 14px; }
+.filters-panel .panel-body { max-height: calc(100vh - 140px); overflow-y: auto; }
+.shell.filters-min .filters-panel .panel-head { border-bottom: 0; flex-direction: column; padding: 12px 6px; }
+.shell.filters-min .filters-panel .panel-head h2 { writing-mode: vertical-rl; transform: rotate(180deg); }
+.shell.filters-min .filters-body { display: none; }
+
+.facet { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 12px; }
+.facet:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
 .facet-opt { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; cursor: pointer; }
 .facet-opt input { margin: 0; }
 .facet-opt .count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.plan-block { display: grid; gap: 10px; }
+.plan-ep { display: flex; flex-wrap: wrap; gap: 6px; }
+.plan-ep label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+.plan-ep input { margin: 0; }
+
+/* results */
 .results-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; }
 .results { display: grid; gap: 10px; }
 .study-card {
   display: grid; gap: 8px; text-align: left; width: 100%; border-radius: 12px; cursor: pointer;
-  background: var(--surface); border: 1px solid var(--line); padding: 14px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); padding: 14px; color: var(--ink); border-radius: 12px;
 }
 .study-card:hover { border-color: var(--accent); }
 .study-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.study-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .study-top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 .study-id { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .study-title { font-weight: 600; font-size: 15px; }
@@ -80,24 +102,36 @@ label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip-tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); }
 .chip-tag.match { background: var(--accent-bg); color: var(--accent); }
+.chip-btn { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); border: 1px solid transparent; }
 .score { font-size: 12px; color: var(--accent); font-weight: 600; white-space: nowrap; }
 .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); white-space: nowrap; }
 .pill.ok { background: var(--ok-bg); color: var(--ok); }
 .pill.bad { background: var(--bad-bg); color: var(--bad); }
 .pill.plan { background: var(--accent-bg); color: var(--accent); }
-.empty { color: var(--muted); text-align: center; padding: 32px 0; margin: 0; }
+.empty { color: var(--muted); text-align: center; padding: 32px 12px; margin: 0; }
 
-/* detail */
-#detail { scroll-margin-top: 16px; }
-.detail-meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 4px; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.kpi { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+/* side panel */
+.side-panel { display: flex; flex-direction: column; }
+.side-panel[hidden] { display: none; }
+.side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: 6px; }
+.side-body { padding: 14px; overflow-y: auto; }
+@media (max-width: 1099px) {
+  .side-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); z-index: 30; border-radius: 0; box-shadow: -8px 0 24px rgba(0,0,0,.12); }
+  .side-panel .side-body { max-height: none; }
+}
+.side-body { max-height: calc(100vh - 60px); }
+.detail-meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-top: 4px; font-size: 13px; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+.kpi { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .kpi .label { color: var(--muted); font-size: 12px; }
-.kpi .value { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 2px 0; }
-.kpi .hint { color: var(--muted); font-size: 12px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.kpi .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 2px 0; }
+.kpi .hint { color: var(--muted); font-size: 11px; }
+.section { margin-top: 18px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.tabs-ep { display: flex; flex-wrap: wrap; gap: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; font-size: 12px; }
 .chip[aria-pressed="false"] { opacity: .4; }
 .chip i, .tip i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
 .chart-wrap { position: relative; }
@@ -117,18 +151,35 @@ label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; 
 .tip-day { font-weight: 600; margin-bottom: 4px; }
 .tip div { display: flex; align-items: center; gap: 6px; }
 .scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 13px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th { color: var(--muted); font-weight: 600; font-size: 12px; }
 th[data-sort] { cursor: pointer; user-select: none; }
 th[aria-sort="ascending"]::after { content: " ▲"; }
 th[aria-sort="descending"]::after { content: " ▼"; }
 .num { text-align: right; }
-.table-note { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+.table-note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
 .design-list { display: flex; flex-wrap: wrap; gap: 6px; }
-footer { color: var(--muted); font-size: 12px; padding: 16px 16px 32px; max-width: 1280px; margin: 0 auto; }
+.summary-text { font-size: 13px; }
+
+/* assistant */
+.chat-log { display: grid; gap: 10px; align-content: start; min-height: 240px; max-height: 52vh; overflow-y: auto; padding-right: 2px; }
+.msg { border-radius: 12px; padding: 9px 12px; max-width: 92%; font-size: 13px; }
+.msg p { margin: 0 0 6px; white-space: pre-line; }
+.msg p:last-child { margin-bottom: 0; }
+.msg.bot { background: var(--bg); border: 1px solid var(--line); justify-self: start; }
+.msg.user { background: var(--accent-bg); color: var(--ink); justify-self: end; }
+.msg .chips { margin-top: 6px; }
+.prompts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.prompts button { font-size: 12px; padding: 4px 10px; }
+.chat-form { display: flex; gap: 8px; margin-top: 10px; }
+.chat-form input { flex: 1; }
+.assist-note { color: var(--muted); font-size: 11px; margin-top: 8px; }
+
+footer { color: var(--muted); font-size: 12px; padding: 8px 16px 24px; }
 @media (max-width: 600px) {
-  h1 { font-size: 19px; }
+  .topbar { padding: 10px 12px; }
+  .shell { padding: 12px; }
 }
 </style>
 </head>
@@ -141,7 +192,7 @@ footer { color: var(--muted); font-size: 12px; padding: 16px 16px 32px; max-widt
     id, title, compound, therapy, indication, target, species, strain, route,
     start (YYYY-MM-DD), duration (days), status ("Planned" | "Active" | "Completed"),
     team, source,                              // source = which system the data came from
-    search,                                    // lower-case text for the search box
+    search,                                    // lower-case text used by free-text search
     endpoints: ["body_weight", ...],           // keys into ENDPOINTS
     groups:    [{ id, label, dose, n }],       // first group is the vehicle / control
     animals:   [{ id, group, sex, status, deathDay, excluded }],
@@ -150,92 +201,113 @@ footer { color: var(--muted); font-size: 12px; padding: 16px 16px 32px; max-widt
 
   Replace makeCatalog() with a loader that returns studies of this shape, one per source system.
   Everything below is imaginary demo data generated in the browser from fixed seeds.
+  The assistant runs locally. It reads the catalog and never sends it anywhere.
 -->
 
 <div class="demo-banner">DEMO: all studies and data are imaginary.</div>
 
-<div class="wrap">
-  <header class="top">
+<header class="topbar">
+  <div class="brand">
     <div class="eyebrow">In vivo study catalog</div>
-    <h1>Find studies relevant to your next experiment</h1>
-    <p class="sub">Search and filter past, running and planned studies across therapy areas and data sources. Set your planned study below to rank the catalog by relevance.</p>
-  </header>
-
-  <section class="card" aria-labelledby="plan-title">
-    <div class="card-head">
-      <div>
-        <h2 id="plan-title">Your planned study</h2>
-        <p class="sub">Leave a field as "Any" to ignore it. Ranking: therapy area 3, species 2, route 1, each endpoint 1, duration within 7 days 1.</p>
-      </div>
-      <button type="button" class="ghost" data-action="clear-plan">Clear plan</button>
-    </div>
-    <div class="plan-grid">
-      <label class="field">Therapy area <select id="plan-therapy"></select></label>
-      <label class="field">Species <select id="plan-species"></select></label>
-      <label class="field">Route <select id="plan-route"></select></label>
-      <label class="field">Planned duration (days) <input type="number" id="plan-duration" min="1" max="365" placeholder="Any"></label>
-    </div>
-    <div class="plan-ep" id="plan-endpoints" style="margin-top:12px" role="group" aria-label="Endpoints you plan to measure"></div>
-    <label class="facet-opt" style="margin-top:12px"><input type="checkbox" id="plan-only"> Show only studies that match my plan</label>
-  </section>
-
-  <div class="layout">
-    <aside class="card filters" aria-label="Filters">
-      <div class="card-head" style="margin-bottom:8px">
-        <h2>Filter</h2>
-        <button type="button" class="ghost" data-action="clear-filters">Reset</button>
-      </div>
-      <input type="search" id="catalog-search" placeholder="Search ID, compound, target, indication" aria-label="Search studies" style="width:100%;margin-bottom:6px">
-      <div id="facets"></div>
-    </aside>
-
-    <section aria-label="Study results">
-      <div class="results-head">
-        <h2 id="results-count"></h2>
-        <span class="sub" id="results-sort"></span>
-      </div>
-      <div class="results" id="results"></div>
-    </section>
   </div>
+  <div class="search-wrap">
+    <input type="search" id="catalog-search" placeholder="Search studies, compounds, targets, indications, animal IDs…" aria-label="Free-text search">
+  </div>
+  <button type="button" class="primary" data-action="ask" aria-controls="side">Ask assistant</button>
+</header>
 
-  <section class="card" id="detail" hidden aria-labelledby="d-title">
-    <div class="card-head">
-      <div>
+<div class="shell" id="shell">
+  <aside class="panel filters-panel" aria-label="Filters">
+    <div class="panel-head">
+      <h2>Filters</h2>
+      <button type="button" class="ghost" data-action="toggle-filters" aria-expanded="true" aria-controls="filters-body">Minimize</button>
+    </div>
+    <div class="panel-body filters-body" id="filters-body">
+      <div class="plan-block">
+        <h3>Your planned study</h3>
+        <label class="field">Therapy area <select id="plan-therapy"></select></label>
+        <label class="field">Species <select id="plan-species"></select></label>
+        <label class="field">Route <select id="plan-route"></select></label>
+        <label class="field">Planned duration (days) <input type="number" id="plan-duration" min="1" max="365" placeholder="Any"></label>
+        <div class="plan-ep" id="plan-endpoints" role="group" aria-label="Endpoints you plan to measure"></div>
+        <label class="facet-opt"><input type="checkbox" id="plan-only"> Show only studies that match my plan</label>
+        <div><button type="button" class="ghost" data-action="clear-plan">Clear plan</button></div>
+      </div>
+      <div id="facets"></div>
+      <div style="margin-top:12px"><button type="button" class="ghost" data-action="clear-filters">Reset filters</button></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="results-head">
+      <h2 id="results-count"></h2>
+      <span class="sub" id="results-sort"></span>
+    </div>
+    <div class="results" id="results"></div>
+  </main>
+
+  <aside class="panel side-panel" id="side" hidden aria-label="Study details and assistant">
+    <div class="side-head">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="study" aria-pressed="true">Study</button>
+        <button type="button" role="tab" data-tab="assistant" aria-pressed="false">Assistant</button>
+      </div>
+      <button type="button" class="ghost" data-action="close-side" aria-label="Close side panel">Close</button>
+    </div>
+
+    <div class="side-body" id="pane-study">
+      <p class="empty" id="study-empty">Select a study to see its details here.</p>
+      <div id="study-content" hidden>
         <div class="eyebrow" id="d-eyebrow"></div>
-        <h2 id="d-title" style="font-size:18px"></h2>
+        <h2 id="d-title" style="font-size:17px;margin-top:2px"></h2>
         <div class="detail-meta" id="d-meta"></div>
-      </div>
-      <button type="button" class="ghost" data-action="close-detail" aria-label="Close study details">Close</button>
-    </div>
-
-    <div id="planned-note" class="empty" hidden></div>
-
-    <div id="data-sections">
-      <div class="kpis" id="kpis"></div>
-      <div class="card-head" style="margin-bottom:8px">
-        <div>
-          <h3 id="chart-title" style="color:var(--ink);font-size:14px"></h3>
-          <p class="sub">Group mean ± SD by study day. Dots show individual animals. Excluded animals are omitted.</p>
+        <div id="planned-note" class="section" hidden></div>
+        <div id="data-sections">
+          <div class="kpis" id="kpis"></div>
+          <div class="section">
+            <div class="section-head">
+              <div>
+                <h3 style="color:var(--ink);font-size:14px;margin:0" id="chart-title"></h3>
+                <p class="sub">Group mean ± SD by study day. Dots show individual animals.</p>
+              </div>
+            </div>
+            <div class="tabs-ep" id="endpoints" role="group" aria-label="Endpoint" style="margin-bottom:8px"></div>
+            <div class="legend" id="legend"></div>
+            <div class="chart-wrap" id="chart"></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><h3 style="color:var(--ink);font-size:14px;margin:0">Group summary</h3></div>
+            <p class="sub" id="summary-note" style="margin:0 0 6px"></p>
+            <div class="scroll"><table id="summary"></table></div>
+          </div>
+          <div class="section">
+            <div class="section-head">
+              <h3 style="color:var(--ink);font-size:14px;margin:0">Animals</h3>
+              <input type="search" id="animal-search" placeholder="Filter by ID, sex or status" aria-label="Filter animals">
+            </div>
+            <div class="scroll"><table id="animals"></table></div>
+            <p class="table-note" id="animals-note"></p>
+          </div>
         </div>
-        <div class="tabs" id="endpoints" role="group" aria-label="Endpoint"></div>
       </div>
-      <div class="legend" id="legend"></div>
-      <div class="chart-wrap" id="chart"></div>
-
-      <div class="card-head" style="margin:20px 0 8px">
-        <h3 style="color:var(--ink);font-size:14px">Group summary</h3>
-        <span class="sub" id="summary-note"></span>
-      </div>
-      <div class="scroll"><table id="summary"></table></div>
-
-      <div class="card-head" style="margin:20px 0 8px">
-        <h3 style="color:var(--ink);font-size:14px">Animals</h3>
-        <input type="search" id="animal-search" placeholder="Filter by ID, sex or status" aria-label="Filter animals">
-      </div>
-      <div class="scroll"><table id="animals"></table></div>
-      <p class="table-note" id="animals-note"></p>
     </div>
-  </section>
+
+    <div class="side-body" id="pane-assistant" hidden>
+      <p class="sub" style="margin:0 0 8px">Ask in plain words. The assistant filters the catalog, ranks studies for a planned study, or summarizes the study you have open. It answers only from the catalog data in this page.</p>
+      <div class="prompts">
+        <button type="button" class="chip-btn" data-prompt="Mouse oral studies in oncology">Mouse oral studies in oncology</button>
+        <button type="button" class="chip-btn" data-prompt="Planned rat studies with ALT">Planned rat studies with ALT</button>
+        <button type="button" class="chip-btn" data-prompt="Plan a 28 day mouse study in metabolic">Plan a 28-day mouse study in metabolic</button>
+        <button type="button" class="chip-btn" data-prompt="Summarize the selected study">Summarize the selected study</button>
+      </div>
+      <div class="chat-log" id="chat-log" aria-live="polite"></div>
+      <form class="chat-form" id="chat-form">
+        <input type="text" id="chat-input" placeholder="e.g. completed mouse studies with tumor volume" aria-label="Ask the assistant" autocomplete="off">
+        <button type="submit" class="primary">Ask</button>
+      </form>
+      <p class="assist-note">Answers come from this demo catalog. The assistant does not run statistics and does not give study recommendations.</p>
+    </div>
+  </aside>
 </div>
 
 <footer>Demo data only. No real study results are shown.</footer>
@@ -331,13 +403,13 @@ function buildStudy(cfg) {
 // Therapy areas used to build the imaginary catalog.
 const THERAPY = [
   { area: 'Oncology', prefix: 'ONC', indications: ['NSCLC', 'Colorectal cancer', 'Breast cancer'], targets: ['EGFR', 'KRAS G12C', 'PD-L1'],
-    endpoints: ['tumor_volume', 'body_weight'], species: ['Mouse'], team: 'Oncology PK/PD' },
+    endpoints: ['tumor_volume', 'body_weight'], species: ['Mouse'], team: 'Oncology PK/PD', words: ['oncology', 'cancer', 'tumor', 'tumour', 'xenograft'] },
   { area: 'Metabolic', prefix: 'MET', indications: ['NASH', 'Type 2 diabetes', 'Obesity'], targets: ['GLP-1R', 'FGF21', 'ACC'],
-    endpoints: ['glucose', 'body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Metabolism' },
+    endpoints: ['glucose', 'body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Metabolism', words: ['metabolic', 'metabolism', 'diabetes', 'obesity', 'nash'] },
   { area: 'Immunology', prefix: 'IMM', indications: ['Rheumatoid arthritis', 'Psoriasis', 'IBD'], targets: ['IL-23', 'JAK1', 'TNF'],
-    endpoints: ['body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Immunology' },
+    endpoints: ['body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Immunology', words: ['immunology', 'immune', 'inflammation', 'arthritis', 'psoriasis', 'ibd', 'colitis'] },
   { area: 'Neuroscience', prefix: 'NEU', indications: ["Alzheimer's disease", 'Epilepsy'], targets: ['BACE1', 'SV2A'],
-    endpoints: ['body_weight', 'glucose'], species: ['Rat'], team: 'Neuroscience' },
+    endpoints: ['body_weight', 'glucose'], species: ['Rat'], team: 'Neuroscience', words: ['neuroscience', 'neuro', 'cns', 'alzheimer', 'epilepsy', 'brain'] },
 ];
 const STRAINS = { Mouse: ['C57BL/6J', 'NSG', 'BALB/c'], Rat: ['Sprague-Dawley', 'Wistar'] };
 const ROUTES = ['Oral gavage (PO)', 'Intraperitoneal (IP)', 'Intravenous (IV)', 'Subcutaneous (SC)'];
@@ -363,9 +435,8 @@ function makeCatalog(count) {
     const id = `${t.prefix}-${year}-${String(i + 1).padStart(3, '0')}`;
     const compound = `CMP-${100 + Math.floor(r() * 900)}`;
     const type = pick(r, STUDY_TYPES);
-    const title = type[0].toUpperCase() + type.slice(1);
     const cfg = {
-      code: `${t.prefix}${i + 1}`, id, title, compound,
+      code: `${t.prefix}${i + 1}`, id, title: type[0].toUpperCase() + type.slice(1), compound,
       therapy: t.area, indication, target, species, strain: pick(r, STRAINS[species]),
       route: pick(r, ROUTES), start, duration: pick(r, [14, 28, 42, 90]), status,
       team: t.team, source,
@@ -373,7 +444,11 @@ function makeCatalog(count) {
       nPerGroup: 6 + Math.floor(r() * 5), seed: 1000 + i, endpoints: t.endpoints,
     };
     const study = buildStudy(cfg);
-    study.search = [id, compound, indication, target, title, study.strain, t.area].join(' ').toLowerCase();
+    const endpointLabels = study.endpoints.map((e) => ENDPOINTS[e].label);
+    const groupLabels = study.groups.map((g) => g.label);
+    const animalIds = study.animals.map((a) => a.id);
+    study.search = [id, compound, study.title, indication, target, t.area, t.team, species, study.strain, study.route,
+      status, source, `${study.duration} days`, ...endpointLabels, ...groupLabels, ...animalIds].join(' ').toLowerCase();
     out.push(study);
   }
   return out;
@@ -397,7 +472,15 @@ const state = {
   catalogQuery: '',
   plan: { therapy: '', species: '', route: '', endpoints: new Set(), duration: '' },
   planOnly: false,
-  selectedId: null, endpoint: null, hidden: new Set(), animalQuery: '', sort: { key: 'id', dir: 1 },
+  filtersMin: window.innerWidth < 900,
+  sideOpen: false,
+  sideTab: 'study',
+  selectedId: null,
+  endpoint: null,
+  hidden: new Set(),
+  animalQuery: '',
+  sort: { key: 'id', dir: 1 },
+  chat: [{ role: 'bot', text: 'Hi. I can filter the catalog, rank studies for a planned study, or summarize the study you have open. Try "completed mouse studies with tumor volume".', ids: [] }],
 };
 let chartModel = null;
 
@@ -417,14 +500,14 @@ function relevance(s) {
   return { score, matched };
 }
 
+// Free text: every word must appear somewhere in the study's searchable text.
 function passesFilters(s) {
-  const q = state.catalogQuery.trim().toLowerCase();
-  if (q && !s.search.includes(q)) return false;
+  const words = state.catalogQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.some((w) => !s.search.includes(w))) return false;
   for (const [key] of FACETS) {
     const selected = state.filters[key];
     if (!selected.size) continue;
     if (key === 'endpoint') {
-      // Every selected endpoint must be measured in the study.
       if (![...selected].every((e) => s.endpoints.includes(e))) return false;
     } else if (!facetValues(s, key).some((v) => selected.has(v))) {
       return false;
@@ -462,6 +545,7 @@ function syncPlanForm() {
   $('#plan-duration').value = p.duration;
   $('#plan-only').checked = state.planOnly;
   document.querySelectorAll('[data-plan-endpoint]').forEach((el) => { el.checked = p.endpoints.has(el.dataset.planEndpoint); });
+  $('#catalog-search').value = state.catalogQuery;
 }
 
 function renderResults() {
@@ -472,16 +556,16 @@ function renderResults() {
   $('#results-count').textContent = `${matches.length} of ${STUDIES.length} studies`;
   $('#results-sort').textContent = ranked ? 'Ranked by relevance to your planned study' : 'Newest first. Set a planned study to rank by relevance.';
   if (!matches.length) {
-    $('#results').innerHTML = '<p class="empty">No studies match these filters. Try resetting a filter.</p>';
+    $('#results').innerHTML = '<p class="empty">No studies match. Remove a word from the search or reset the filters.</p>';
     return;
   }
   $('#results').innerHTML = matches.map(({ s, score, matched }) => {
     const statusCls = s.status === 'Completed' ? 'ok' : s.status === 'Planned' ? 'plan' : '';
-    const tags = (s.status === 'Planned'
+    const tags = s.status === 'Planned'
       ? [`${s.groups.length} groups`, `${s.groups[0].n} per group`]
-      : [`${s.animals.length} animals`, ...s.endpoints.map((e) => ENDPOINTS[e].label)]);
+      : [`${s.animals.length} animals`, ...s.endpoints.map((e) => ENDPOINTS[e].label)];
     const matchChips = matched.map((m) => `<span class="chip-tag match">${esc(m)}</span>`).join('');
-    return `<button type="button" class="study-card ${s.id === state.selectedId ? 'selected' : ''}" data-open="${esc(s.id)}" aria-pressed="${s.id === state.selectedId}">
+    return `<button type="button" class="study-card ${s.id === state.selectedId ? 'selected' : ''}" data-open="${esc(s.id)}" ${s.id === state.selectedId ? 'aria-current="true"' : ''}>
       <div class="study-top">
         <div><div class="study-id">${esc(s.id)} · ${esc(s.compound)}</div><div class="study-title">${esc(s.title)} · ${esc(s.indication)}</div></div>
         <div style="display:flex;gap:8px;align-items:center">${ranked ? `<span class="score">Score ${score}</span>` : ''}<span class="pill ${statusCls}">${esc(s.status)}</span></div>
@@ -499,7 +583,7 @@ function renderResults() {
   }).join('');
 }
 
-// ---------- detail view ----------
+// ---------- study details ----------
 
 function seriesFor(study, key) {
   const excluded = new Set(study.animals.filter((a) => a.excluded).map((a) => a.id));
@@ -534,7 +618,7 @@ function renderKpis(study) {
     ['Animals enrolled', study.animals.length, `${study.groups.length} dose groups`],
     ['On study', count('On study'), 'no deaths or exclusions'],
     ['Found dead', count('Found dead'), 'data kept up to day of death'],
-    ['Excluded', count('Excluded'), 'shown in table, omitted from stats'],
+    ['Excluded', count('Excluded'), 'omitted from stats'],
     ['Study day', studyDay, `of ${study.duration} planned`],
   ];
   $('#kpis').innerHTML = cards.map(([label, value, hint]) =>
@@ -611,19 +695,18 @@ function renderSummary(ep, series) {
     const dBase = ((last.mean - first.mean) / first.mean) * 100;
     const dVeh = s.group.id === vehicle.group.id || !ref ? null : ((last.mean - ref.mean) / ref.mean) * 100;
     return `<tr><td>${esc(s.group.label)}</td><td class="num">${last.n}</td><td class="num">${fmt(first.mean, ep.decimals)}</td>
-      <td class="num">${fmt(last.mean, ep.decimals)} ± ${fmt(last.sd, ep.decimals)}</td><td class="num">Day ${last.day}</td>
-      <td class="num">${pct(dBase)}</td><td class="num">${pct(dVeh)}</td></tr>`;
+      <td class="num">${fmt(last.mean, ep.decimals)} ± ${fmt(last.sd, ep.decimals)}</td><td class="num">${pct(dBase)}</td><td class="num">${pct(dVeh)}</td></tr>`;
   }).join('');
   $('#summary').innerHTML = `<thead><tr><th>Group</th><th class="num">n</th><th class="num">Baseline</th>
-    <th class="num">Final mean ± SD</th><th class="num">Final day</th><th class="num">Δ vs baseline</th><th class="num">Δ vs vehicle</th></tr></thead>
+    <th class="num">Final mean ± SD</th><th class="num">Δ baseline</th><th class="num">Δ vehicle</th></tr></thead>
     <tbody>${rows}</tbody>`;
-  $('#summary-note').textContent = `${ep.label} · vehicle is the reference for Δ vs vehicle`;
+  $('#summary-note').textContent = `${ep.label}. Final day per group. Vehicle is the reference for Δ vehicle.`;
 }
 
 function renderAnimals(study, ep, byAnimal) {
   const q = state.animalQuery.trim().toLowerCase();
   const labels = Object.fromEntries(study.groups.map((g) => [g.id, g.label]));
-  let rows = study.animals
+  const rows = study.animals
     .filter((a) => !state.hidden.has(a.group) && (!q || `${a.id} ${a.status} ${a.sex}`.toLowerCase().includes(q)))
     .map((a) => {
       const vals = byAnimal.get(a.id) || [];
@@ -643,8 +726,8 @@ function renderAnimals(study, ep, byAnimal) {
     if (y == null) return -1;
     return (x > y ? 1 : x < y ? -1 : 0) * dir;
   });
-  const cols = [['id', 'Animal'], ['label', 'Group'], ['sex', 'Sex'], ['status', 'Status'],
-    ['lastDay', 'Last day', 'num'], ['last', `Last ${ep.unit}`, 'num'], ['delta', 'Δ baseline', 'num']];
+  const cols = [['id', 'Animal'], ['label', 'Group'], ['status', 'Status'],
+    ['lastDay', 'Day', 'num'], ['last', `${ep.unit}`, 'num'], ['delta', 'Δ base', 'num']];
   const head = cols.map(([k, label, cls]) => {
     const aria = state.sort.key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none';
     return `<th scope="col" data-sort="${k}" aria-sort="${aria}" class="${cls || ''}">${label}</th>`;
@@ -652,17 +735,18 @@ function renderAnimals(study, ep, byAnimal) {
   const body = rows.map((r) => {
     const cls = r.status === 'On study' ? 'ok' : r.status === 'Found dead' ? 'bad' : '';
     return `<tr>
-      <td>${esc(r.id)}</td><td>${esc(r.label)}</td><td>${r.sex}</td>
+      <td>${esc(r.id)}<div class="small muted">${r.sex}</div></td><td>${esc(r.label)}</td>
       <td><span class="pill ${cls}">${esc(r.status)}</span>${r.note ? `<div class="small muted">${esc(r.note)}</div>` : ''}</td>
       <td class="num">${r.lastDay ?? '–'}</td><td class="num">${fmt(r.last, ep.decimals)}</td><td class="num">${pct(r.delta)}</td></tr>`;
   }).join('');
   $('#animals').innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body}</tbody>`;
-  $('#animals-note').textContent = `Showing ${rows.length} of ${study.animals.length} animals. Δ baseline compares last value with first value for this endpoint.`;
+  $('#animals-note').textContent = `Showing ${rows.length} of ${study.animals.length} animals.`;
 }
 
 function renderDetail() {
   const study = state.selectedId && studyById(state.selectedId);
-  $('#detail').hidden = !study;
+  $('#study-empty').hidden = Boolean(study);
+  $('#study-content').hidden = !study;
   if (!study) return;
   $('#d-eyebrow').textContent = `${study.therapy} · ${study.indication} · ${study.status}`;
   $('#d-title').textContent = `${study.id}: ${study.title}`;
@@ -675,9 +759,9 @@ function renderDetail() {
   $('#data-sections').hidden = planned;
   $('#planned-note').hidden = !planned;
   if (planned) {
-    $('#planned-note').innerHTML = `<p style="margin:0 0 10px">This study is planned and has no results yet.</p>
+    $('#planned-note').innerHTML = `<p class="summary-text" style="margin:0 0 10px">This study is planned and has no results yet.</p>
       <div class="design-list">${study.groups.map((g) => `<span class="chip-tag">${esc(g.label)} · n=${g.n}</span>`).join('')}
-      <span class="chip-tag">${study.endpoints.map((e) => ENDPOINTS[e].label).join(', ')}</span></div>`;
+      ${study.endpoints.map((e) => `<span class="chip-tag">${ENDPOINTS[e].label}</span>`).join('')}</div>`;
     return;
   }
 
@@ -692,13 +776,166 @@ function renderDetail() {
   renderAnimals(study, ep, byAnimal);
 }
 
-function openStudy(id) {
-  state.selectedId = id;
-  state.endpoint = null;
-  state.hidden = new Set();
-  renderResults();
-  renderDetail();
-  $('#detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ---------- assistant (local, rule-based; reads only the catalog above) ----------
+
+const STOP = new Set(['a', 'an', 'the', 'in', 'of', 'with', 'for', 'and', 'to', 'on', 'my', 'me', 'i', 'want', 'need', 'find', 'show', 'all', 'studies', 'study', 'that', 'are', 'is', 'which', 'some', 'please', 'give', 'about', 'day', 'days', 'd', 'plan', 'planning', 'planned', 'summarize', 'summary', 'explain', 'describe', 'tell', 'running', 'next']);
+const RULES = {
+  species: [[/\b(mouse|mice)\b/, 'Mouse'], [/\brats?\b/, 'Rat']],
+  route: [[/\b(oral|gavage|po)\b/, 'Oral gavage (PO)'], [/\b(ip|intraperitoneal)\b/, 'Intraperitoneal (IP)'],
+    [/\b(iv|intravenous)\b/, 'Intravenous (IV)'], [/\b(sc|subcutaneous)\b/, 'Subcutaneous (SC)']],
+  status: [[/\b(planned|upcoming|future)\b/, 'Planned'], [/\b(active|running|ongoing|in progress|current)\b/, 'Active'],
+    [/\b(completed|finished|past|historical|done)\b/, 'Completed']],
+  endpoint: [[/\b(glucose|blood sugar)\b/, 'glucose'], [/\b(alt|liver enzymes?)\b/, 'alt'],
+    [/\b(body weight|weight)\b/, 'body_weight'], [/\b(tumou?r|tumou?r volume|volume)\b/, 'tumor_volume']],
+  source: [[/\b(legacy|notebooks?)\b/, 'Legacy notebooks (2019–2022)'], [/\blims\b/, 'Pharmacology LIMS'],
+    [/\bcro\b/, 'CRO report archive'], [/\bhistopath\w*\b/, 'Histopathology system']],
+};
+const KNOWN_WORDS = new Set(Object.values(RULES).flat().flatMap(([re]) => re.source.match(/[a-z]+/g) || []));
+THERAPY.forEach((t) => t.words.forEach((w) => KNOWN_WORDS.add(w)));
+['mouse', 'mice', 'rat', 'rats', 'oral', 'gavage', 'intraperitoneal', 'intravenous', 'subcutaneous', 'tumour', 'alt', 'weight', 'glucose', 'lims', 'cro', 'legacy']
+  .forEach((w) => KNOWN_WORDS.add(w));
+
+function parseQuery(text) {
+  const t = ` ${text.toLowerCase().replace(/[^a-z0-9\s\-/()]/g, ' ')} `;
+  const result = { filters: {}, plan: {}, intent: 'filter', text: '', mentions: [] };
+  if (/\b(summari[sz]e|summary|explain|describe|tell me about)\b/.test(t)) result.intent = 'summary';
+  else if (/\b(plan (a|my|the|next)|planning (a|my|the)|next (study|experiment)|going to run|about to run|plan an?)\b/.test(t)) result.intent = 'plan';
+
+  for (const t_ of THERAPY) {
+    if (t_.words.some((w) => new RegExp(`\\b${w}\\b`).test(t))) (result.filters.therapy ||= []).push(t_.area);
+    for (const ind of t_.indications) if (t.includes(` ${ind.toLowerCase()} `)) (result.filters.indication ||= []).push(ind);
+  }
+  for (const [key, rules] of Object.entries(RULES)) {
+    for (const [re, value] of rules) {
+      if (!re.test(t)) continue;
+      const bucket = key === 'endpoint' ? 'endpoint' : key;
+      (result.filters[bucket] ||= []).push(value);
+      break;
+    }
+  }
+  const dur = t.match(/\b(\d+)\s*(?:-\s*)?(?:day|days|d)\b/);
+  if (dur) result.plan.duration = Number(dur[1]);
+  const leftover = t.split(/\s+/).filter((w) => w && !STOP.has(w) && !KNOWN_WORDS.has(w) && !/^\d+$/.test(w) && !/^(in|of|with|mg|kg)$/.test(w));
+  result.text = leftover.join(' ');
+  return result;
+}
+
+function describeStudy(s) {
+  const lines = [];
+  lines.push(`${s.id} (${s.compound}, ${s.target}) is a ${s.status.toLowerCase()} ${s.species.toLowerCase()} study in ${s.indication.toLowerCase()}. Route: ${s.route}. Duration: ${s.duration} days. Groups: ${s.groups.map((g) => g.label).join(', ')}.`);
+  if (s.status === 'Planned') {
+    lines.push(`It has no results yet. Planned group size: ${s.groups[0].n} per group.`);
+    return lines.join('\n');
+  }
+  const dead = s.animals.filter((a) => a.status === 'Found dead').length;
+  const excluded = s.animals.filter((a) => a.status === 'Excluded').length;
+  lines.push(`${s.animals.length} animals enrolled, ${dead} found dead, ${excluded} excluded from statistics.`);
+  const ep = s.endpoints[0];
+  const { series } = seriesFor(s, ep);
+  const vehicle = series[0].points.at(-1);
+  if (vehicle) {
+    const label = ENDPOINTS[ep].label;
+    const parts = series.slice(1).map((sr) => {
+      const p = sr.points.at(-1);
+      const ref = series[0].points.find((q) => q.day === p?.day);
+      if (!p || !ref) return null;
+      return `${sr.group.label} ${fmt(p.mean, ENDPOINTS[ep].decimals)} (${pct(((p.mean - ref.mean) / ref.mean) * 100)} vs vehicle)`;
+    }).filter(Boolean);
+    lines.push(`${label} on day ${vehicle.day}: vehicle ${fmt(vehicle.mean, ENDPOINTS[ep].decimals)}; ${parts.join('; ')}.`);
+  }
+  if (s.endpoints.length > 1) lines.push(`Other endpoints measured: ${s.endpoints.slice(1).map((e) => ENDPOINTS[e].label).join(', ')}.`);
+  lines.push('These are group means from the catalog. No statistical test has been run.');
+  return lines.join('\n');
+}
+
+function say(role, text, ids = []) {
+  state.chat.push({ role, text, ids });
+  renderChat();
+}
+
+function askAssistant(raw) {
+  const text = raw.trim();
+  if (!text) return;
+  state.sideOpen = true;
+  state.sideTab = 'assistant';
+  say('user', text);
+  const q = parseQuery(text);
+
+  if (q.intent === 'summary') {
+    const study = state.selectedId && studyById(state.selectedId);
+    if (!study) say('bot', 'Select a study first, then ask me to summarize it. Or ask me to find studies.');
+    else say('bot', describeStudy(study));
+    return renderAll();
+  }
+
+  if (q.intent === 'plan') {
+    for (const [key] of FACETS) state.filters[key].clear();
+    state.catalogQuery = '';
+    const p = state.plan;
+    p.therapy = q.filters.therapy?.[0] || '';
+    p.species = q.filters.species?.[0] || '';
+    p.route = q.filters.route?.[0] || '';
+    p.endpoints = new Set(q.filters.endpoint || []);
+    p.duration = q.plan.duration || '';
+    state.planOnly = true;
+    const shown = STUDIES.filter(passesFilters).map((s) => ({ s, ...relevance(s) })).filter((m) => m.score > 0)
+      .sort((a, b) => b.score - a.score || b.s.start.localeCompare(a.s.start)).slice(0, 5);
+    const summary = [p.therapy, p.species, p.route, p.duration && `${p.duration} days`, ...[...p.endpoints].map((e) => ENDPOINTS[e].label)].filter(Boolean).join(', ') || 'no specifics';
+    say('bot', shown.length
+      ? `Ranked the catalog for your planned study (${summary}). The top matches are below. Matches show a score; the list is filtered to studies that match at least one part of your plan.`
+      : `No studies match your planned study (${summary}). Try fewer constraints.`, shown.map((m) => m.s.id));
+    return renderAll();
+  }
+
+  // Plain filter request: replace the current filter selection with what was understood.
+  for (const [key] of FACETS) state.filters[key].clear();
+  const applied = [];
+  for (const [key, values] of Object.entries(q.filters)) {
+    if (!state.filters[key]) continue;
+    values.forEach((v) => state.filters[key].add(v));
+    applied.push(`${FACETS.find(([k]) => k === key)[1].toLowerCase()}: ${values.map((v) => facetLabel(key, v)).join(', ')}`);
+  }
+  state.catalogQuery = q.text;
+  const matches = STUDIES.filter(passesFilters);
+  const top = matches.slice(0, 5).map((s) => s.id);
+  const parts = [];
+  parts.push(matches.length
+    ? `Found ${matches.length} ${matches.length === 1 ? 'study' : 'studies'}.`
+    : 'No studies match. Try fewer filters.');
+  if (applied.length) parts.push(`I applied ${applied.join('; ')}.`);
+  if (q.text) parts.push(`Searched for: "${q.text}".`);
+  if (!applied.length && !q.text) parts.push('I could not find a filter in that. Try mentioning a species, route, therapy area, status, endpoint, or data source.');
+  if (matches.length > 5) parts.push('Showing the newest five. Use the filter panel to narrow further.');
+  say('bot', parts.join(' '), top);
+  renderAll();
+}
+
+function renderChat() {
+  $('#chat-log').innerHTML = state.chat.map((m) => {
+    const chips = m.ids.length
+      ? `<div class="chips">${m.ids.map((id) => {
+          const s = studyById(id);
+          return `<button type="button" class="chip-btn" data-open="${esc(id)}">${esc(id)} · ${esc(s.indication)}</button>`;
+        }).join('')}</div>` : '';
+    return `<div class="msg ${m.role}"><p>${esc(m.text)}</p>${chips}</div>`;
+  }).join('');
+  const log = $('#chat-log');
+  log.scrollTop = log.scrollHeight;
+}
+
+// ---------- layout ----------
+
+function renderShell() {
+  $('#shell').classList.toggle('filters-min', state.filtersMin);
+  $('#shell').classList.toggle('side-open', state.sideOpen);
+  const toggle = document.querySelector('[data-action="toggle-filters"]');
+  toggle.textContent = state.filtersMin ? 'Show' : 'Minimize';
+  toggle.setAttribute('aria-expanded', String(!state.filtersMin));
+  $('#filters-body').hidden = state.filtersMin;
+  $('#side').hidden = !state.sideOpen;
+  document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === state.sideTab)));
+  $('#pane-study').hidden = state.sideTab !== 'study';
+  $('#pane-assistant').hidden = state.sideTab !== 'assistant';
 }
 
 function renderAll() {
@@ -706,17 +943,34 @@ function renderAll() {
   syncPlanForm();
   renderResults();
   renderDetail();
+  renderShell();
+  renderChat();
 }
 
 // ---------- events ----------
 
 document.addEventListener('click', (e) => {
   const open = e.target.closest('[data-open]');
+  const tab = e.target.closest('[data-tab]');
   const endpoint = e.target.closest('[data-endpoint]');
   const group = e.target.closest('[data-group]');
   const sort = e.target.closest('[data-sort]');
   const action = e.target.closest('[data-action]');
-  if (open) return openStudy(open.dataset.open);
+  const prompt = e.target.closest('[data-prompt]');
+  if (prompt) return askAssistant(prompt.dataset.prompt);
+  if (open) {
+    state.selectedId = open.dataset.open;
+    state.endpoint = null;
+    state.hidden = new Set();
+    state.sideOpen = true;
+    state.sideTab = 'study';
+    return renderAll();
+  }
+  if (tab) {
+    state.sideTab = tab.dataset.tab;
+    state.sideOpen = true;
+    return renderAll();
+  }
   if (action) {
     const a = action.dataset.action;
     if (a === 'clear-plan') {
@@ -725,9 +979,15 @@ document.addEventListener('click', (e) => {
     } else if (a === 'clear-filters') {
       for (const [key] of FACETS) state.filters[key].clear();
       state.catalogQuery = '';
-      $('#catalog-search').value = '';
-    } else if (a === 'close-detail') {
+    } else if (a === 'close-side') {
+      state.sideOpen = false;
       state.selectedId = null;
+    } else if (a === 'toggle-filters') {
+      state.filtersMin = !state.filtersMin;
+    } else if (a === 'ask') {
+      state.sideOpen = true;
+      state.sideTab = 'assistant';
+      setTimeout(() => $('#chat-input').focus(), 0);
     }
     return renderAll();
   }
@@ -765,8 +1025,14 @@ document.addEventListener('change', (e) => {
 $('#catalog-search').addEventListener('input', (e) => { state.catalogQuery = e.target.value; renderResults(); });
 $('#animal-search').addEventListener('input', (e) => {
   state.animalQuery = e.target.value;
-  const study = studyById(state.selectedId);
-  if (study && study.status !== 'Planned') renderAll();
+  renderDetail();
+});
+$('#chat-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = $('#chat-input');
+  const text = input.value;
+  input.value = '';
+  askAssistant(text);
 });
 
 $('#chart').addEventListener('pointermove', (e) => {

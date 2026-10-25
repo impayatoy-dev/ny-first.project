@@ -3,54 +3,99 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>InVivo Study Viewer</title>
+<title>InVivo Study Catalog</title>
 <style>
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --ink: #1d2430; --muted: #667085; --line: #e4e7ec;
   --accent: #2f6fdb; --bad: #b42318; --ok: #067647;
   --c0: #667085; --c1: #2f9e8f; --c2: #e08a1e; --c3: #c2410c;
-  --bad-bg: #fef3f2; --ok-bg: #ecfdf3; --muted-bg: #f2f4f7;
+  --bad-bg: #fef3f2; --ok-bg: #ecfdf3; --muted-bg: #f2f4f7; --accent-bg: #eef4ff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f131a; --surface: #171d27; --ink: #e6e9ef; --muted: #98a2b3; --line: #263041;
     --accent: #6b9cf0; --bad: #f97066; --ok: #47cd89;
     --c0: #98a2b3; --c1: #4fc3b2; --c2: #f0a94a; --c3: #f0744a;
-    --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37;
+    --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37; --accent-bg: #1b2740;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f131a; --surface: #171d27; --ink: #e6e9ef; --muted: #98a2b3; --line: #263041;
   --accent: #6b9cf0; --bad: #f97066; --ok: #47cd89;
   --c0: #98a2b3; --c1: #4fc3b2; --c2: #f0a94a; --c3: #f0744a;
-  --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37;
+  --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37; --accent-bg: #1b2740;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-main, header, footer { max-width: 1200px; margin: 0 auto; padding: 16px; }
-header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; padding-bottom: 8px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
+.demo-banner { background: var(--bad-bg); color: var(--bad); font-weight: 600; text-align: center; padding: 8px 16px; font-size: 13px; }
+header.top { padding-top: 16px; }
 .eyebrow { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-h1 { font-size: 22px; margin: 2px 0 6px; }
+h1 { font-size: 22px; margin: 2px 0 4px; }
 h2 { font-size: 15px; margin: 0; }
-.meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
-select, input[type="search"] {
-  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
-  border-radius: 8px; padding: 7px 10px; min-width: 0;
-}
-.study-picker { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; }
-.study-picker select { min-width: 280px; max-width: 100%; color: var(--ink); font-size: 14px; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-.kpi .label { color: var(--muted); font-size: 12px; }
-.kpi .value { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 2px 0; }
-.kpi .hint { color: var(--muted); font-size: 12px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-.card-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
 .sub { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; min-width: 0; }
+.card-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+select, input[type="search"], input[type="number"] {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px; min-width: 0; max-width: 100%;
+}
 button { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
 button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.ghost { border-color: transparent; color: var(--accent); padding: 4px 8px; }
+button:focus-visible, select:focus-visible, input:focus-visible, .study-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; }
+
+/* planning profile */
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end; }
+.plan-ep { display: flex; flex-wrap: wrap; gap: 6px; }
+.plan-ep label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+.plan-ep input { margin: 0; }
+.plan-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+
+/* layout */
+.layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 900px) { .layout { grid-template-columns: 260px 1fr; align-items: start; } .filters { position: sticky; top: 16px; } }
+.filters { max-height: none; }
+.facet { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+.facet:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.facet-opt { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; cursor: pointer; }
+.facet-opt input { margin: 0; }
+.facet-opt .count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.results-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; }
+.results { display: grid; gap: 10px; }
+.study-card {
+  display: grid; gap: 8px; text-align: left; width: 100%; border-radius: 12px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); padding: 14px; color: var(--ink);
+}
+.study-card:hover { border-color: var(--accent); }
+.study-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.study-top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+.study-id { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.study-title { font-weight: 600; font-size: 15px; }
+.study-facts { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); }
+.chip-tag.match { background: var(--accent-bg); color: var(--accent); }
+.score { font-size: 12px; color: var(--accent); font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); white-space: nowrap; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.pill.plan { background: var(--accent-bg); color: var(--accent); }
+.empty { color: var(--muted); text-align: center; padding: 32px 0; margin: 0; }
+
+/* detail */
+#detail { scroll-margin-top: 16px; }
+.detail-meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 4px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.kpi .label { color: var(--muted); font-size: 12px; }
+.kpi .value { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 2px 0; }
+.kpi .hint { color: var(--muted); font-size: 12px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; }
 .chip[aria-pressed="false"] { opacity: .4; }
@@ -71,7 +116,6 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 .tip[hidden] { display: none; }
 .tip-day { font-weight: 600; margin-bottom: 4px; }
 .tip div { display: flex; align-items: center; gap: 6px; }
-.empty { color: var(--muted); text-align: center; padding: 48px 0; margin: 0; }
 .scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -80,17 +124,10 @@ th[data-sort] { cursor: pointer; user-select: none; }
 th[aria-sort="ascending"]::after { content: " ▲"; }
 th[aria-sort="descending"]::after { content: " ▼"; }
 .num { text-align: right; }
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
-.pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); }
-.pill.ok { background: var(--ok-bg); color: var(--ok); }
-.pill.bad { background: var(--bad-bg); color: var(--bad); }
 .table-note { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
-footer { color: var(--muted); font-size: 12px; padding-bottom: 32px; }
-.demo-banner { background: var(--bad-bg); color: var(--bad); font-weight: 600; text-align: center; padding: 8px 16px; font-size: 13px; }
+.design-list { display: flex; flex-wrap: wrap; gap: 6px; }
+footer { color: var(--muted); font-size: 12px; padding: 16px 16px 32px; max-width: 1280px; margin: 0 auto; }
 @media (max-width: 600px) {
-  main, header, footer { padding: 16px; }
-  .study-picker select { min-width: 0; width: 100%; }
   h1 { font-size: 19px; }
 }
 </style>
@@ -98,65 +135,108 @@ footer { color: var(--muted); font-size: 12px; padding-bottom: 32px; }
 <body>
 
 <!--
-  Data contract. Replace buildStudy() with a loader that returns objects of this shape:
+  Data contract. The catalog is a list of study objects:
 
   Study {
-    id, title, compound, species, strain, route, start (YYYY-MM-DD), duration (days),
-    status ("Active" | "Closed"),
-    endpoints: ["body_weight", ...],          // keys into ENDPOINTS
-    groups:    [{ id, label, dose }],         // first group is the vehicle / control
-    animals:   [{ id, group, sex, status: "On study" | "Found dead" | "Excluded",
-                  deathDay, excluded }],     // excluded = reason string, or null
-    measurements: [{ animal, group, day, endpoint, value }]
+    id, title, compound, therapy, indication, target, species, strain, route,
+    start (YYYY-MM-DD), duration (days), status ("Planned" | "Active" | "Completed"),
+    team, source,                              // source = which system the data came from
+    search,                                    // lower-case text for the search box
+    endpoints: ["body_weight", ...],           // keys into ENDPOINTS
+    groups:    [{ id, label, dose, n }],       // first group is the vehicle / control
+    animals:   [{ id, group, sex, status, deathDay, excluded }],
+    measurements: [{ animal, group, day, endpoint, value }]   // empty for Planned studies
   }
 
-  Everything below is demo data generated in the browser from fixed seeds.
+  Replace makeCatalog() with a loader that returns studies of this shape, one per source system.
+  Everything below is imaginary demo data generated in the browser from fixed seeds.
 -->
 
-<div class="demo-banner">DEMO: imaginary data. Not real study results.</div>
-<header>
-  <div>
-    <div class="eyebrow">In vivo study viewer</div>
-    <h1 id="title"></h1>
-    <div class="meta" id="meta"></div>
-  </div>
-  <label class="study-picker">Study
-    <select id="study"></select>
-  </label>
-</header>
+<div class="demo-banner">DEMO: all studies and data are imaginary.</div>
 
-<main>
-  <section class="kpis" id="kpis"></section>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">In vivo study catalog</div>
+    <h1>Find studies relevant to your next experiment</h1>
+    <p class="sub">Search and filter past, running and planned studies across therapy areas and data sources. Set your planned study below to rank the catalog by relevance.</p>
+  </header>
 
-  <section class="card">
+  <section class="card" aria-labelledby="plan-title">
     <div class="card-head">
       <div>
-        <h2 id="chart-title"></h2>
-        <p class="sub">Group mean ± SD by study day. Dots show individual animals. Excluded animals are omitted.</p>
+        <h2 id="plan-title">Your planned study</h2>
+        <p class="sub">Leave a field as "Any" to ignore it. Ranking: therapy area 3, species 2, route 1, each endpoint 1, duration within 7 days 1.</p>
       </div>
-      <div class="tabs" id="endpoints" role="group" aria-label="Endpoint"></div>
+      <button type="button" class="ghost" data-action="clear-plan">Clear plan</button>
     </div>
-    <div class="legend" id="legend"></div>
-    <div class="chart-wrap" id="chart"></div>
+    <div class="plan-grid">
+      <label class="field">Therapy area <select id="plan-therapy"></select></label>
+      <label class="field">Species <select id="plan-species"></select></label>
+      <label class="field">Route <select id="plan-route"></select></label>
+      <label class="field">Planned duration (days) <input type="number" id="plan-duration" min="1" max="365" placeholder="Any"></label>
+    </div>
+    <div class="plan-ep" id="plan-endpoints" style="margin-top:12px" role="group" aria-label="Endpoints you plan to measure"></div>
+    <label class="facet-opt" style="margin-top:12px"><input type="checkbox" id="plan-only"> Show only studies that match my plan</label>
   </section>
 
-  <section class="card">
-    <div class="card-head">
-      <h2>Group summary</h2>
-      <span class="sub" id="summary-note"></span>
-    </div>
-    <div class="scroll"><table id="summary"></table></div>
-  </section>
+  <div class="layout">
+    <aside class="card filters" aria-label="Filters">
+      <div class="card-head" style="margin-bottom:8px">
+        <h2>Filter</h2>
+        <button type="button" class="ghost" data-action="clear-filters">Reset</button>
+      </div>
+      <input type="search" id="catalog-search" placeholder="Search ID, compound, target, indication" aria-label="Search studies" style="width:100%;margin-bottom:6px">
+      <div id="facets"></div>
+    </aside>
 
-  <section class="card">
+    <section aria-label="Study results">
+      <div class="results-head">
+        <h2 id="results-count"></h2>
+        <span class="sub" id="results-sort"></span>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
+  </div>
+
+  <section class="card" id="detail" hidden aria-labelledby="d-title">
     <div class="card-head">
-      <h2>Animals</h2>
-      <input type="search" id="search" placeholder="Filter by ID, sex or status" aria-label="Filter animals">
+      <div>
+        <div class="eyebrow" id="d-eyebrow"></div>
+        <h2 id="d-title" style="font-size:18px"></h2>
+        <div class="detail-meta" id="d-meta"></div>
+      </div>
+      <button type="button" class="ghost" data-action="close-detail" aria-label="Close study details">Close</button>
     </div>
-    <div class="scroll"><table id="animals"></table></div>
-    <p class="table-note" id="animals-note"></p>
+
+    <div id="planned-note" class="empty" hidden></div>
+
+    <div id="data-sections">
+      <div class="kpis" id="kpis"></div>
+      <div class="card-head" style="margin-bottom:8px">
+        <div>
+          <h3 id="chart-title" style="color:var(--ink);font-size:14px"></h3>
+          <p class="sub">Group mean ± SD by study day. Dots show individual animals. Excluded animals are omitted.</p>
+        </div>
+        <div class="tabs" id="endpoints" role="group" aria-label="Endpoint"></div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="chart-wrap" id="chart"></div>
+
+      <div class="card-head" style="margin:20px 0 8px">
+        <h3 style="color:var(--ink);font-size:14px">Group summary</h3>
+        <span class="sub" id="summary-note"></span>
+      </div>
+      <div class="scroll"><table id="summary"></table></div>
+
+      <div class="card-head" style="margin:20px 0 8px">
+        <h3 style="color:var(--ink);font-size:14px">Animals</h3>
+        <input type="search" id="animal-search" placeholder="Filter by ID, sex or status" aria-label="Filter animals">
+      </div>
+      <div class="scroll"><table id="animals"></table></div>
+      <p class="table-note" id="animals-note"></p>
+    </div>
   </section>
-</main>
+</div>
 
 <footer>Demo data only. No real study results are shown.</footer>
 
@@ -167,7 +247,7 @@ const pct = (v) => (v == null || !isFinite(v) ? '–' : (v > 0 ? '+' : '') + v.t
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const round = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
 
-// Seeded PRNG so the demo data is the same on every load.
+// Seeded PRNG so the demo catalog is the same on every load.
 function rng(seed) {
   let s = seed >>> 0;
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
@@ -176,6 +256,7 @@ function gauss(r) {
   const u = r() || 1e-9, v = r();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
+const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
 // Days 0, step, 2*step, ... up to and including dur.
 function every(step, dur) {
   const days = [];
@@ -197,8 +278,13 @@ const ENDPOINTS = {
   },
   alt: {
     label: 'ALT', unit: 'U/L', decimals: 0,
-    schedule: (dur) => [7, 14, 21, 28, 35, 42].filter((d) => d < dur).concat(dur),
+    schedule: (dur) => [7, 14, 21, 28, 35, 42, 56, 70, 84].filter((d) => d < dur).concat(dur),
     model: (day, g, a, cfg, r) => 35 + 110 * (g.dose / cfg.maxDose) * (day / cfg.duration) + 6 * gauss(r),
+  },
+  glucose: {
+    label: 'Blood glucose', unit: 'mg/dL', decimals: 0,
+    schedule: (dur) => every(7, dur),
+    model: (day, g, a, cfg, r) => 130 - 25 * (g.dose / cfg.maxDose) * (day / cfg.duration) + (a.sex === 'M' ? 5 : 0) + 8 * gauss(r),
   },
   tumor_volume: {
     label: 'Tumor volume', unit: 'mm³', decimals: 0,
@@ -212,9 +298,9 @@ const ENDPOINTS = {
 
 function buildStudy(cfg) {
   const r = rng(cfg.seed);
-  const groups = cfg.doses.map((dose, i) => ({ id: `G${i + 1}`, label: dose === 0 ? 'Vehicle' : `${dose} mg/kg`, dose }));
-  const animals = [];
-  const measurements = [];
+  const groups = cfg.doses.map((dose, i) => ({ id: `G${i + 1}`, label: dose === 0 ? 'Vehicle' : `${dose} mg/kg`, dose, n: cfg.nPerGroup }));
+  const study = { ...cfg, groups, animals: [], measurements: [] };
+  if (cfg.status === 'Planned') return study;
   let serial = 0;
   for (const g of groups) {
     for (let k = 0; k < cfg.nPerGroup; k++) {
@@ -229,37 +315,192 @@ function buildStudy(cfg) {
         status: excluded ? 'Excluded' : deathDay !== null ? 'Found dead' : 'On study',
         traits: { v0: 100 + 25 * r(), rate: 0.05 + 0.005 * gauss(r) },
       };
-      animals.push(animal);
+      study.animals.push(animal);
       for (const key of cfg.endpoints) {
         const ep = ENDPOINTS[key];
         for (const day of ep.schedule(cfg.duration)) {
           if (deathDay !== null && day > deathDay) break;
-          measurements.push({ animal: animal.id, group: g.id, day, endpoint: key, value: round(ep.model(day, g, animal, cfg, r), 2) });
+          study.measurements.push({ animal: animal.id, group: g.id, day, endpoint: key, value: round(ep.model(day, g, animal, cfg, r), 2) });
         }
       }
     }
   }
-  return { ...cfg, groups, animals, measurements };
+  return study;
 }
 
-const STUDIES = [
-  buildStudy({ code: 'INV14', id: 'INV-2026-014', title: '28-day repeat-dose tolerability', compound: 'Compound A',
-    species: 'Mouse', strain: 'C57BL/6J', route: 'Oral gavage (PO)', start: '2026-06-02', duration: 28, status: 'Active',
-    doses: [0, 10, 30, 100], maxDose: 100, nPerGroup: 8, seed: 14, endpoints: ['body_weight', 'alt'] }),
-  buildStudy({ code: 'INV21', id: 'INV-2026-021', title: 'CDX xenograft efficacy', compound: 'Compound B',
-    species: 'Mouse', strain: 'NSG', route: 'Intraperitoneal (IP)', start: '2026-07-15', duration: 42, status: 'Active',
-    doses: [0, 25, 50, 100], maxDose: 100, nPerGroup: 10, seed: 21, endpoints: ['body_weight', 'tumor_volume'] }),
-  buildStudy({ code: 'INV09', id: 'INV-2025-088', title: 'Rat 14-day dose-range finding', compound: 'Compound C',
-    species: 'Rat', strain: 'Sprague-Dawley', route: 'Intravenous (IV)', start: '2025-11-03', duration: 14, status: 'Closed',
-    doses: [0, 5, 15, 50], maxDose: 50, nPerGroup: 6, seed: 88, endpoints: ['body_weight', 'alt'] }),
+// Therapy areas used to build the imaginary catalog.
+const THERAPY = [
+  { area: 'Oncology', prefix: 'ONC', indications: ['NSCLC', 'Colorectal cancer', 'Breast cancer'], targets: ['EGFR', 'KRAS G12C', 'PD-L1'],
+    endpoints: ['tumor_volume', 'body_weight'], species: ['Mouse'], team: 'Oncology PK/PD' },
+  { area: 'Metabolic', prefix: 'MET', indications: ['NASH', 'Type 2 diabetes', 'Obesity'], targets: ['GLP-1R', 'FGF21', 'ACC'],
+    endpoints: ['glucose', 'body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Metabolism' },
+  { area: 'Immunology', prefix: 'IMM', indications: ['Rheumatoid arthritis', 'Psoriasis', 'IBD'], targets: ['IL-23', 'JAK1', 'TNF'],
+    endpoints: ['body_weight', 'alt'], species: ['Mouse', 'Rat'], team: 'Immunology' },
+  { area: 'Neuroscience', prefix: 'NEU', indications: ["Alzheimer's disease", 'Epilepsy'], targets: ['BACE1', 'SV2A'],
+    endpoints: ['body_weight', 'glucose'], species: ['Rat'], team: 'Neuroscience' },
 ];
+const STRAINS = { Mouse: ['C57BL/6J', 'NSG', 'BALB/c'], Rat: ['Sprague-Dawley', 'Wistar'] };
+const ROUTES = ['Oral gavage (PO)', 'Intraperitoneal (IP)', 'Intravenous (IV)', 'Subcutaneous (SC)'];
+const STUDY_TYPES = ['repeat-dose tolerability', 'efficacy study', 'dose-range finding', 'PK/PD bridging'];
+const SOURCES = ['Pharmacology LIMS', 'CRO report archive', 'Histopathology system'];
 
-const state = { studyId: STUDIES[0].id, endpoint: null, hidden: new Set(), query: '', sort: { key: 'id', dir: 1 } };
+function makeCatalog(count) {
+  const r = rng(2026);
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const t = THERAPY[i % THERAPY.length];
+    const status = i % 9 === 8 ? 'Planned' : i % 5 === 3 ? 'Active' : 'Completed';
+    const year = status === 'Planned' ? 2027 : status === 'Active' ? 2026 : 2021 + Math.floor(r() * 5);
+    const start = status === 'Planned' ? `2027-0${1 + Math.floor(r() * 4)}-01`
+      : status === 'Active' ? `2026-0${5 + Math.floor(r() * 3)}-15`
+      : `${year}-${String(1 + Math.floor(r() * 12)).padStart(2, '0')}-10`;
+    const species = pick(r, t.species);
+    const indication = pick(r, t.indications);
+    const target = pick(r, t.targets);
+    const max = pick(r, [50, 100, 300]);
+    const source = status === 'Planned' ? 'Study planning system'
+      : year <= 2022 ? 'Legacy notebooks (2019–2022)' : pick(r, SOURCES);
+    const id = `${t.prefix}-${year}-${String(i + 1).padStart(3, '0')}`;
+    const compound = `CMP-${100 + Math.floor(r() * 900)}`;
+    const type = pick(r, STUDY_TYPES);
+    const title = type[0].toUpperCase() + type.slice(1);
+    const cfg = {
+      code: `${t.prefix}${i + 1}`, id, title, compound,
+      therapy: t.area, indication, target, species, strain: pick(r, STRAINS[species]),
+      route: pick(r, ROUTES), start, duration: pick(r, [14, 28, 42, 90]), status,
+      team: t.team, source,
+      doses: [0, Math.round(max * 0.1), Math.round(max * 0.3), max], maxDose: max,
+      nPerGroup: 6 + Math.floor(r() * 5), seed: 1000 + i, endpoints: t.endpoints,
+    };
+    const study = buildStudy(cfg);
+    study.search = [id, compound, indication, target, title, study.strain, t.area].join(' ').toLowerCase();
+    out.push(study);
+  }
+  return out;
+}
+
+const STUDIES = makeCatalog(36);
+const studyById = (id) => STUDIES.find((s) => s.id === id);
+
+const FACETS = [
+  ['therapy', 'Therapy area'], ['indication', 'Indication'], ['species', 'Species'], ['route', 'Route'],
+  ['endpoint', 'Endpoint'], ['status', 'Status'], ['source', 'Data source'],
+];
+const facetValues = (s, key) => ({
+  therapy: [s.therapy], indication: [s.indication], species: [s.species], route: [s.route],
+  endpoint: s.endpoints, status: [s.status], source: [s.source],
+})[key];
+const facetLabel = (key, v) => (key === 'endpoint' ? ENDPOINTS[v].label : v);
+
+const state = {
+  filters: Object.fromEntries(FACETS.map(([k]) => [k, new Set()])),
+  catalogQuery: '',
+  plan: { therapy: '', species: '', route: '', endpoints: new Set(), duration: '' },
+  planOnly: false,
+  selectedId: null, endpoint: null, hidden: new Set(), animalQuery: '', sort: { key: 'id', dir: 1 },
+};
 let chartModel = null;
 
-function studyById(id) { return STUDIES.find((s) => s.id === id); }
+function planActive() {
+  const p = state.plan;
+  return Boolean(p.therapy || p.species || p.route || p.endpoints.size || p.duration);
+}
 
-// Per-group mean/SD by day for one endpoint. Excluded animals are left out of stats.
+function relevance(s) {
+  const p = state.plan, matched = [];
+  let score = 0;
+  if (p.therapy && s.therapy === p.therapy) { score += 3; matched.push(s.therapy); }
+  if (p.species && s.species === p.species) { score += 2; matched.push(s.species); }
+  if (p.route && s.route === p.route) { score += 1; matched.push(s.route); }
+  for (const e of p.endpoints) if (s.endpoints.includes(e)) { score += 1; matched.push(ENDPOINTS[e].label); }
+  if (p.duration && Math.abs(s.duration - p.duration) <= 7) { score += 1; matched.push(`${s.duration} d`); }
+  return { score, matched };
+}
+
+function passesFilters(s) {
+  const q = state.catalogQuery.trim().toLowerCase();
+  if (q && !s.search.includes(q)) return false;
+  for (const [key] of FACETS) {
+    const selected = state.filters[key];
+    if (!selected.size) continue;
+    if (key === 'endpoint') {
+      // Every selected endpoint must be measured in the study.
+      if (![...selected].every((e) => s.endpoints.includes(e))) return false;
+    } else if (!facetValues(s, key).some((v) => selected.has(v))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function renderFacets() {
+  $('#facets').innerHTML = FACETS.map(([key, label]) => {
+    const counts = new Map();
+    for (const s of STUDIES) for (const v of new Set(facetValues(s, key))) counts.set(v, (counts.get(v) || 0) + 1);
+    const values = [...counts.keys()].sort((a, b) => facetLabel(key, a).localeCompare(facetLabel(key, b)));
+    const opts = values.map((v) => `<label class="facet-opt">
+        <input type="checkbox" data-facet="${key}" value="${esc(v)}" ${state.filters[key].has(v) ? 'checked' : ''}>
+        <span>${esc(facetLabel(key, v))}</span><span class="count">${counts.get(v)}</span></label>`).join('');
+    return `<div class="facet"><h3>${label}</h3>${opts}</div>`;
+  }).join('');
+}
+
+function renderPlanForm() {
+  const opts = (values, any) => [`<option value="">${any}</option>`, ...values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`)].join('');
+  $('#plan-therapy').innerHTML = opts(THERAPY.map((t) => t.area), 'Any');
+  $('#plan-species').innerHTML = opts(Object.keys(STRAINS), 'Any');
+  $('#plan-route').innerHTML = opts(ROUTES, 'Any');
+  $('#plan-endpoints').innerHTML = Object.entries(ENDPOINTS).map(([k, ep]) =>
+    `<label><input type="checkbox" data-plan-endpoint="${k}"> ${ep.label}</label>`).join('');
+}
+
+function syncPlanForm() {
+  const p = state.plan;
+  $('#plan-therapy').value = p.therapy;
+  $('#plan-species').value = p.species;
+  $('#plan-route').value = p.route;
+  $('#plan-duration').value = p.duration;
+  $('#plan-only').checked = state.planOnly;
+  document.querySelectorAll('[data-plan-endpoint]').forEach((el) => { el.checked = p.endpoints.has(el.dataset.planEndpoint); });
+}
+
+function renderResults() {
+  const ranked = planActive();
+  const matches = STUDIES.filter(passesFilters).map((s) => ({ s, ...relevance(s) }))
+    .filter((m) => !(ranked && state.planOnly) || m.score > 0);
+  matches.sort((a, b) => (ranked ? b.score - a.score : 0) || b.s.start.localeCompare(a.s.start));
+  $('#results-count').textContent = `${matches.length} of ${STUDIES.length} studies`;
+  $('#results-sort').textContent = ranked ? 'Ranked by relevance to your planned study' : 'Newest first. Set a planned study to rank by relevance.';
+  if (!matches.length) {
+    $('#results').innerHTML = '<p class="empty">No studies match these filters. Try resetting a filter.</p>';
+    return;
+  }
+  $('#results').innerHTML = matches.map(({ s, score, matched }) => {
+    const statusCls = s.status === 'Completed' ? 'ok' : s.status === 'Planned' ? 'plan' : '';
+    const tags = (s.status === 'Planned'
+      ? [`${s.groups.length} groups`, `${s.groups[0].n} per group`]
+      : [`${s.animals.length} animals`, ...s.endpoints.map((e) => ENDPOINTS[e].label)]);
+    const matchChips = matched.map((m) => `<span class="chip-tag match">${esc(m)}</span>`).join('');
+    return `<button type="button" class="study-card ${s.id === state.selectedId ? 'selected' : ''}" data-open="${esc(s.id)}" aria-pressed="${s.id === state.selectedId}">
+      <div class="study-top">
+        <div><div class="study-id">${esc(s.id)} · ${esc(s.compound)}</div><div class="study-title">${esc(s.title)} · ${esc(s.indication)}</div></div>
+        <div style="display:flex;gap:8px;align-items:center">${ranked ? `<span class="score">Score ${score}</span>` : ''}<span class="pill ${statusCls}">${esc(s.status)}</span></div>
+      </div>
+      <div class="study-facts">
+        <span>${esc(s.therapy)} · ${esc(s.target)}</span>
+        <span>${esc(s.species)} ${esc(s.strain)}</span>
+        <span>${esc(s.route)}</span>
+        <span>${s.duration} days</span>
+        <span>Starts ${esc(s.start)}</span>
+        <span>${esc(s.source)}</span>
+      </div>
+      <div class="chips">${matchChips}${tags.map((t) => `<span class="chip-tag">${esc(t)}</span>`).join('')}</div>
+    </button>`;
+  }).join('');
+}
+
+// ---------- detail view ----------
+
 function seriesFor(study, key) {
   const excluded = new Set(study.animals.filter((a) => a.excluded).map((a) => a.id));
   const byGroup = new Map(study.groups.map((g) => [g.id, new Map()]));
@@ -286,18 +527,6 @@ function seriesFor(study, key) {
   return { series, byAnimal };
 }
 
-function renderHeader(study) {
-  document.title = `${study.id} · InVivo Study Viewer`;
-  $('#title').textContent = `${study.id}: ${study.title}`;
-  $('#meta').innerHTML = [
-    esc(study.compound), `${esc(study.species)} ${esc(study.strain)}`, esc(study.route),
-    `Started ${esc(study.start)}`, `${study.duration} days`,
-    `<span class="pill ${study.status === 'Active' ? 'ok' : ''}">${esc(study.status)}</span>`,
-  ].map((x) => `<span>${x}</span>`).join('<span aria-hidden="true">·</span>');
-  $('#study').innerHTML = STUDIES.map((s) =>
-    `<option value="${esc(s.id)}" ${s.id === study.id ? 'selected' : ''}>${esc(s.id)} · ${esc(s.title)}</option>`).join('');
-}
-
 function renderKpis(study) {
   const count = (status) => study.animals.filter((a) => a.status === status).length;
   const studyDay = Math.max(...study.measurements.map((m) => m.day));
@@ -317,7 +546,7 @@ function renderEndpointTabs(study) {
     `<button type="button" aria-pressed="${k === state.endpoint}" data-endpoint="${k}">${ENDPOINTS[k].label}</button>`).join('');
 }
 
-function renderLegend(study, series) {
+function renderLegend(series) {
   $('#legend').innerHTML = series.map((s) => {
     const off = state.hidden.has(s.group.id);
     return `<button type="button" class="chip" aria-pressed="${!off}" data-group="${s.group.id}">
@@ -392,9 +621,8 @@ function renderSummary(ep, series) {
 }
 
 function renderAnimals(study, ep, byAnimal) {
-  const q = state.query.trim().toLowerCase();
+  const q = state.animalQuery.trim().toLowerCase();
   const labels = Object.fromEntries(study.groups.map((g) => [g.id, g.label]));
-  const total = study.animals.length;
   let rows = study.animals
     .filter((a) => !state.hidden.has(a.group) && (!q || `${a.id} ${a.status} ${a.sex}`.toLowerCase().includes(q)))
     .map((a) => {
@@ -418,8 +646,7 @@ function renderAnimals(study, ep, byAnimal) {
   const cols = [['id', 'Animal'], ['label', 'Group'], ['sex', 'Sex'], ['status', 'Status'],
     ['lastDay', 'Last day', 'num'], ['last', `Last ${ep.unit}`, 'num'], ['delta', 'Δ baseline', 'num']];
   const head = cols.map(([k, label, cls]) => {
-    const active = state.sort.key === k;
-    const aria = active ? (dir > 0 ? 'ascending' : 'descending') : 'none';
+    const aria = state.sort.key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none';
     return `<th scope="col" data-sort="${k}" aria-sort="${aria}" class="${cls || ''}">${label}</th>`;
   }).join('');
   const body = rows.map((r) => {
@@ -430,36 +657,80 @@ function renderAnimals(study, ep, byAnimal) {
       <td class="num">${r.lastDay ?? '–'}</td><td class="num">${fmt(r.last, ep.decimals)}</td><td class="num">${pct(r.delta)}</td></tr>`;
   }).join('');
   $('#animals').innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body}</tbody>`;
-  $('#animals-note').textContent = `Showing ${rows.length} of ${total} animals. Δ baseline compares last value with first value for this endpoint.`;
+  $('#animals-note').textContent = `Showing ${rows.length} of ${study.animals.length} animals. Δ baseline compares last value with first value for this endpoint.`;
 }
 
-function render() {
-  const study = studyById(state.studyId);
+function renderDetail() {
+  const study = state.selectedId && studyById(state.selectedId);
+  $('#detail').hidden = !study;
+  if (!study) return;
+  $('#d-eyebrow').textContent = `${study.therapy} · ${study.indication} · ${study.status}`;
+  $('#d-title').textContent = `${study.id}: ${study.title}`;
+  $('#d-meta').innerHTML = [
+    esc(study.compound), `${esc(study.target)} (${esc(study.team)})`, `${esc(study.species)} ${esc(study.strain)}`,
+    esc(study.route), `Started ${esc(study.start)}`, `${study.duration} days`, esc(study.source),
+  ].map((x) => `<span>${x}</span>`).join('<span aria-hidden="true">·</span>');
+
+  const planned = study.status === 'Planned';
+  $('#data-sections').hidden = planned;
+  $('#planned-note').hidden = !planned;
+  if (planned) {
+    $('#planned-note').innerHTML = `<p style="margin:0 0 10px">This study is planned and has no results yet.</p>
+      <div class="design-list">${study.groups.map((g) => `<span class="chip-tag">${esc(g.label)} · n=${g.n}</span>`).join('')}
+      <span class="chip-tag">${study.endpoints.map((e) => ENDPOINTS[e].label).join(', ')}</span></div>`;
+    return;
+  }
+
   if (!study.endpoints.includes(state.endpoint)) state.endpoint = study.endpoints[0];
   const ep = ENDPOINTS[state.endpoint];
   const { series, byAnimal } = seriesFor(study, state.endpoint);
-  renderHeader(study);
   renderKpis(study);
   renderEndpointTabs(study);
-  renderLegend(study, series);
+  renderLegend(series);
   renderChart(ep, series, byAnimal, study);
   renderSummary(ep, series);
   renderAnimals(study, ep, byAnimal);
 }
 
-$('#study').addEventListener('change', (e) => {
-  state.studyId = e.target.value;
-  state.hidden = new Set();
+function openStudy(id) {
+  state.selectedId = id;
   state.endpoint = null;
-  render();
-});
+  state.hidden = new Set();
+  renderResults();
+  renderDetail();
+  $('#detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
-$('#search').addEventListener('input', (e) => { state.query = e.target.value; render(); });
+function renderAll() {
+  renderFacets();
+  syncPlanForm();
+  renderResults();
+  renderDetail();
+}
+
+// ---------- events ----------
 
 document.addEventListener('click', (e) => {
+  const open = e.target.closest('[data-open]');
   const endpoint = e.target.closest('[data-endpoint]');
   const group = e.target.closest('[data-group]');
   const sort = e.target.closest('[data-sort]');
+  const action = e.target.closest('[data-action]');
+  if (open) return openStudy(open.dataset.open);
+  if (action) {
+    const a = action.dataset.action;
+    if (a === 'clear-plan') {
+      state.plan = { therapy: '', species: '', route: '', endpoints: new Set(), duration: '' };
+      state.planOnly = false;
+    } else if (a === 'clear-filters') {
+      for (const [key] of FACETS) state.filters[key].clear();
+      state.catalogQuery = '';
+      $('#catalog-search').value = '';
+    } else if (a === 'close-detail') {
+      state.selectedId = null;
+    }
+    return renderAll();
+  }
   if (endpoint) state.endpoint = endpoint.dataset.endpoint;
   else if (group) {
     const id = group.dataset.group;
@@ -468,7 +739,34 @@ document.addEventListener('click', (e) => {
     const key = sort.dataset.sort;
     state.sort = state.sort.key === key ? { key, dir: -state.sort.dir } : { key, dir: 1 };
   } else return;
-  render();
+  renderDetail();
+});
+
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.dataset.facet) {
+    const set = state.filters[t.dataset.facet];
+    t.checked ? set.add(t.value) : set.delete(t.value);
+    renderFacets();
+    return renderResults();
+  }
+  if (t.id === 'plan-only') state.planOnly = t.checked;
+  else if (t.dataset.planEndpoint) {
+    const set = state.plan.endpoints;
+    t.checked ? set.add(t.dataset.planEndpoint) : set.delete(t.dataset.planEndpoint);
+  } else if (t.id === 'plan-therapy') state.plan.therapy = t.value;
+  else if (t.id === 'plan-species') state.plan.species = t.value;
+  else if (t.id === 'plan-route') state.plan.route = t.value;
+  else if (t.id === 'plan-duration') state.plan.duration = t.value ? Number(t.value) : '';
+  else return;
+  renderResults();
+});
+
+$('#catalog-search').addEventListener('input', (e) => { state.catalogQuery = e.target.value; renderResults(); });
+$('#animal-search').addEventListener('input', (e) => {
+  state.animalQuery = e.target.value;
+  const study = studyById(state.selectedId);
+  if (study && study.status !== 'Planned') renderAll();
 });
 
 $('#chart').addEventListener('pointermove', (e) => {
@@ -494,7 +792,8 @@ $('#chart').addEventListener('pointerleave', (e) => {
   if (tip) tip.hidden = true;
 });
 
-render();
+renderPlanForm();
+renderAll();
 </script>
 </body>
 </html>

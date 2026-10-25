@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InVivo Study Viewer</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #1d2430; --muted: #667085; --line: #e4e7ec;
+  --accent: #2f6fdb; --bad: #b42318; --ok: #067647;
+  --c0: #667085; --c1: #2f9e8f; --c2: #e08a1e; --c3: #c2410c;
+  --bad-bg: #fef3f2; --ok-bg: #ecfdf3; --muted-bg: #f2f4f7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f131a; --surface: #171d27; --ink: #e6e9ef; --muted: #98a2b3; --line: #263041;
+    --accent: #6b9cf0; --bad: #f97066; --ok: #47cd89;
+    --c0: #98a2b3; --c1: #4fc3b2; --c2: #f0a94a; --c3: #f0744a;
+    --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f131a; --surface: #171d27; --ink: #e6e9ef; --muted: #98a2b3; --line: #263041;
+  --accent: #6b9cf0; --bad: #f97066; --ok: #47cd89;
+  --c0: #98a2b3; --c1: #4fc3b2; --c2: #f0a94a; --c3: #f0744a;
+  --bad-bg: #3a1716; --ok-bg: #123524; --muted-bg: #222a37;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main, header, footer { max-width: 1200px; margin: 0 auto; padding: 16px; }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; padding-bottom: 8px; }
+.eyebrow { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+h1 { font-size: 22px; margin: 2px 0 6px; }
+h2 { font-size: 15px; margin: 0; }
+.meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+select, input[type="search"] {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px; min-width: 0;
+}
+.study-picker { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; }
+.study-picker select { min-width: 280px; max-width: 100%; color: var(--ink); font-size: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.kpi .label { color: var(--muted); font-size: 12px; }
+.kpi .value { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 2px 0; }
+.kpi .hint { color: var(--muted); font-size: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.card-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sub { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+button { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; }
+.chip[aria-pressed="false"] { opacity: .4; }
+.chip i, .tip i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.chart-wrap { position: relative; }
+.chart-wrap svg { width: 100%; height: auto; display: block; }
+.grid { stroke: var(--line); }
+.ax { fill: var(--muted); font-size: 11px; }
+.line { fill: none; stroke-width: 2; }
+.eb { stroke-width: 1.5; }
+.indiv { opacity: .28; }
+.tip {
+  position: absolute; top: 8px; left: 0; pointer-events: none; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); transform: translateX(12px); white-space: nowrap;
+}
+.tip.flip { transform: translateX(calc(-100% - 12px)); }
+.tip[hidden] { display: none; }
+.tip-day { font-weight: 600; margin-bottom: 4px; }
+.tip div { display: flex; align-items: center; gap: 6px; }
+.empty { color: var(--muted); text-align: center; padding: 48px 0; margin: 0; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+th[data-sort] { cursor: pointer; user-select: none; }
+th[aria-sort="ascending"]::after { content: " ▲"; }
+th[aria-sort="descending"]::after { content: " ▼"; }
+.num { text-align: right; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--muted-bg); color: var(--muted); }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.table-note { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+footer { color: var(--muted); font-size: 12px; padding-bottom: 32px; }
+@media (max-width: 600px) {
+  main, header, footer { padding: 16px; }
+  .study-picker select { min-width: 0; width: 100%; }
+  h1 { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+
+<!--
+  Data contract. Replace buildStudy() with a loader that returns objects of this shape:
+
+  Study {
+    id, title, compound, species, strain, route, start (YYYY-MM-DD), duration (days),
+    status ("Active" | "Closed"),
+    endpoints: ["body_weight", ...],          // keys into ENDPOINTS
+    groups:    [{ id, label, dose }],         // first group is the vehicle / control
+    animals:   [{ id, group, sex, status: "On study" | "Found dead" | "Excluded",
+                  deathDay, excluded }],     // excluded = reason string, or null
+    measurements: [{ animal, group, day, endpoint, value }]
+  }
+
+  Everything below is demo data generated in the browser from fixed seeds.
+-->
+
+<header>
+  <div>
+    <div class="eyebrow">In vivo study viewer</div>
+    <h1 id="title"></h1>
+    <div class="meta" id="meta"></div>
+  </div>
+  <label class="study-picker">Study
+    <select id="study"></select>
+  </label>
+</header>
+
+<main>
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2 id="chart-title"></h2>
+        <p class="sub">Group mean ± SD by study day. Dots show individual animals. Excluded animals are omitted.</p>
+      </div>
+      <div class="tabs" id="endpoints" role="group" aria-label="Endpoint"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="chart-wrap" id="chart"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Group summary</h2>
+      <span class="sub" id="summary-note"></span>
+    </div>
+    <div class="scroll"><table id="summary"></table></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Animals</h2>
+      <input type="search" id="search" placeholder="Filter by ID, sex or status" aria-label="Filter animals">
+    </div>
+    <div class="scroll"><table id="animals"></table></div>
+    <p class="table-note" id="animals-note"></p>
+  </section>
+</main>
+
+<footer>Demo data only. No real study results are shown.</footer>
+
+<script>
+const $ = (sel) => document.querySelector(sel);
+const fmt = (v, d = 1) => (v == null || Number.isNaN(v) ? '–' : v.toFixed(d));
+const pct = (v) => (v == null || !isFinite(v) ? '–' : (v > 0 ? '+' : '') + v.toFixed(1) + '%');
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const round = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
+
+// Seeded PRNG so the demo data is the same on every load.
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+}
+function gauss(r) {
+  const u = r() || 1e-9, v = r();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+// Days 0, step, 2*step, ... up to and including dur.
+function every(step, dur) {
+  const days = [];
+  for (let d = 0; d <= dur; d += step) days.push(d);
+  if (days.at(-1) !== dur) days.push(dur);
+  return days;
+}
+
+const ENDPOINTS = {
+  body_weight: {
+    label: 'Body weight', unit: 'g', decimals: 1,
+    schedule: (dur) => every(2, dur),
+    model: (day, g, a, cfg, r) => {
+      const base = a.sex === 'M' ? 26 : 20;
+      const growth = base * 0.18 * (day / cfg.duration);
+      const drag = base * 0.12 * (g.dose / cfg.maxDose) * (day / cfg.duration);
+      return base + growth - drag + 0.4 * gauss(r);
+    },
+  },
+  alt: {
+    label: 'ALT', unit: 'U/L', decimals: 0,
+    schedule: (dur) => [7, 14, 21, 28, 35, 42].filter((d) => d < dur).concat(dur),
+    model: (day, g, a, cfg, r) => 35 + 110 * (g.dose / cfg.maxDose) * (day / cfg.duration) + 6 * gauss(r),
+  },
+  tumor_volume: {
+    label: 'Tumor volume', unit: 'mm³', decimals: 0,
+    schedule: (dur) => every(3, dur),
+    model: (day, g, a, cfg, r) => {
+      const kill = (g.dose / cfg.maxDose) * 0.035;
+      return a.traits.v0 * Math.exp((a.traits.rate - kill) * day) * Math.exp(0.08 * gauss(r));
+    },
+  },
+};
+
+function buildStudy(cfg) {
+  const r = rng(cfg.seed);
+  const groups = cfg.doses.map((dose, i) => ({ id: `G${i + 1}`, label: dose === 0 ? 'Vehicle' : `${dose} mg/kg`, dose }));
+  const animals = [];
+  const measurements = [];
+  let serial = 0;
+  for (const g of groups) {
+    for (let k = 0; k < cfg.nPerGroup; k++) {
+      serial += 1;
+      const sex = k % 2 ? 'F' : 'M';
+      const severity = g.dose / cfg.maxDose;
+      const deathDay = severity > 0.8 && r() < 0.3 ? Math.round(cfg.duration * (0.4 + 0.4 * r())) : null;
+      const excluded = g.id === 'G2' && k === 3 ? 'Dosing error: wrong volume recorded' : null;
+      const animal = {
+        id: `${cfg.code}-${String(serial).padStart(3, '0')}`,
+        group: g.id, sex, deathDay, excluded,
+        status: excluded ? 'Excluded' : deathDay !== null ? 'Found dead' : 'On study',
+        traits: { v0: 100 + 25 * r(), rate: 0.05 + 0.005 * gauss(r) },
+      };
+      animals.push(animal);
+      for (const key of cfg.endpoints) {
+        const ep = ENDPOINTS[key];
+        for (const day of ep.schedule(cfg.duration)) {
+          if (deathDay !== null && day > deathDay) break;
+          measurements.push({ animal: animal.id, group: g.id, day, endpoint: key, value: round(ep.model(day, g, animal, cfg, r), 2) });
+        }
+      }
+    }
+  }
+  return { ...cfg, groups, animals, measurements };
+}
+
+const STUDIES = [
+  buildStudy({ code: 'INV14', id: 'INV-2026-014', title: '28-day repeat-dose tolerability', compound: 'Compound A',
+    species: 'Mouse', strain: 'C57BL/6J', route: 'Oral gavage (PO)', start: '2026-06-02', duration: 28, status: 'Active',
+    doses: [0, 10, 30, 100], maxDose: 100, nPerGroup: 8, seed: 14, endpoints: ['body_weight', 'alt'] }),
+  buildStudy({ code: 'INV21', id: 'INV-2026-021', title: 'CDX xenograft efficacy', compound: 'Compound B',
+    species: 'Mouse', strain: 'NSG', route: 'Intraperitoneal (IP)', start: '2026-07-15', duration: 42, status: 'Active',
+    doses: [0, 25, 50, 100], maxDose: 100, nPerGroup: 10, seed: 21, endpoints: ['body_weight', 'tumor_volume'] }),
+  buildStudy({ code: 'INV09', id: 'INV-2025-088', title: 'Rat 14-day dose-range finding', compound: 'Compound C',
+    species: 'Rat', strain: 'Sprague-Dawley', route: 'Intravenous (IV)', start: '2025-11-03', duration: 14, status: 'Closed',
+    doses: [0, 5, 15, 50], maxDose: 50, nPerGroup: 6, seed: 88, endpoints: ['body_weight', 'alt'] }),
+];
+
+const state = { studyId: STUDIES[0].id, endpoint: null, hidden: new Set(), query: '', sort: { key: 'id', dir: 1 } };
+let chartModel = null;
+
+function studyById(id) { return STUDIES.find((s) => s.id === id); }
+
+// Per-group mean/SD by day for one endpoint. Excluded animals are left out of stats.
+function seriesFor(study, key) {
+  const excluded = new Set(study.animals.filter((a) => a.excluded).map((a) => a.id));
+  const byGroup = new Map(study.groups.map((g) => [g.id, new Map()]));
+  const byAnimal = new Map();
+  for (const m of study.measurements) {
+    if (m.endpoint !== key) continue;
+    if (!byAnimal.has(m.animal)) byAnimal.set(m.animal, []);
+    byAnimal.get(m.animal).push({ day: m.day, value: m.value });
+    if (excluded.has(m.animal)) continue;
+    const days = byGroup.get(m.group);
+    if (!days.has(m.day)) days.set(m.day, []);
+    days.get(m.day).push(m.value);
+  }
+  const series = study.groups.map((g, i) => {
+    const points = [...byGroup.get(g.id)].sort((a, b) => a[0] - b[0]).map(([day, vals]) => {
+      const n = vals.length;
+      const mean = vals.reduce((s, v) => s + v, 0) / n;
+      const sd = n > 1 ? Math.sqrt(vals.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1)) : 0;
+      return { day, n, mean, sd };
+    });
+    const animals = study.animals.filter((a) => a.group === g.id && !a.excluded).map((a) => a.id);
+    return { group: g, color: `var(--c${i})`, points, animals };
+  });
+  return { series, byAnimal };
+}
+
+function renderHeader(study) {
+  document.title = `${study.id} · InVivo Study Viewer`;
+  $('#title').textContent = `${study.id}: ${study.title}`;
+  $('#meta').innerHTML = [
+    esc(study.compound), `${esc(study.species)} ${esc(study.strain)}`, esc(study.route),
+    `Started ${esc(study.start)}`, `${study.duration} days`,
+    `<span class="pill ${study.status === 'Active' ? 'ok' : ''}">${esc(study.status)}</span>`,
+  ].map((x) => `<span>${x}</span>`).join('<span aria-hidden="true">·</span>');
+  $('#study').innerHTML = STUDIES.map((s) =>
+    `<option value="${esc(s.id)}" ${s.id === study.id ? 'selected' : ''}>${esc(s.id)} · ${esc(s.title)}</option>`).join('');
+}
+
+function renderKpis(study) {
+  const count = (status) => study.animals.filter((a) => a.status === status).length;
+  const studyDay = Math.max(...study.measurements.map((m) => m.day));
+  const cards = [
+    ['Animals enrolled', study.animals.length, `${study.groups.length} dose groups`],
+    ['On study', count('On study'), 'no deaths or exclusions'],
+    ['Found dead', count('Found dead'), 'data kept up to day of death'],
+    ['Excluded', count('Excluded'), 'shown in table, omitted from stats'],
+    ['Study day', studyDay, `of ${study.duration} planned`],
+  ];
+  $('#kpis').innerHTML = cards.map(([label, value, hint]) =>
+    `<div class="kpi"><div class="label">${esc(label)}</div><div class="value">${value}</div><div class="hint">${esc(hint)}</div></div>`).join('');
+}
+
+function renderEndpointTabs(study) {
+  $('#endpoints').innerHTML = study.endpoints.map((k) =>
+    `<button type="button" aria-pressed="${k === state.endpoint}" data-endpoint="${k}">${ENDPOINTS[k].label}</button>`).join('');
+}
+
+function renderLegend(study, series) {
+  $('#legend').innerHTML = series.map((s) => {
+    const off = state.hidden.has(s.group.id);
+    return `<button type="button" class="chip" aria-pressed="${!off}" data-group="${s.group.id}">
+      <i style="background:${s.color}"></i>${esc(s.group.label)} <span class="muted">n=${s.animals.length}</span></button>`;
+  }).join('');
+}
+
+function renderChart(ep, series, byAnimal, study) {
+  const wrap = $('#chart');
+  const visible = series.filter((s) => !state.hidden.has(s.group.id) && s.points.length);
+  $('#chart-title').textContent = `${ep.label} (${ep.unit})`;
+  if (!visible.length) {
+    wrap.innerHTML = '<p class="empty">No groups selected.</p>';
+    chartModel = null;
+    return;
+  }
+  const W = 720, H = 340, m = { l: 56, r: 16, t: 16, b: 36 };
+  const x1 = study.duration;
+  const lo = Math.min(...visible.flatMap((s) => s.points.map((p) => p.mean - p.sd)));
+  const hi = Math.max(...visible.flatMap((s) => s.points.map((p) => p.mean + p.sd)));
+  const pad = (hi - lo) * 0.08 || 1;
+  const y0 = Math.max(0, lo - pad), y1 = hi + pad;
+  const X = (d) => m.l + (d / x1) * (W - m.l - m.r);
+  const Y = (v) => m.t + (1 - (v - y0) / (y1 - y0)) * (H - m.t - m.b);
+
+  const yTicks = [0, 1, 2, 3, 4].map((i) => y0 + ((y1 - y0) * i) / 4);
+  const xTicks = [];
+  for (let d = 0; d <= x1; d += 7) xTicks.push(d);
+  if (xTicks.at(-1) !== x1) xTicks.push(x1);
+
+  const grid = yTicks.map((v) =>
+    `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="grid"/>` +
+    `<text x="${m.l - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" class="ax">${fmt(v, ep.decimals)}</text>`).join('');
+  const xAxis = xTicks.map((d) =>
+    `<text x="${X(d).toFixed(1)}" y="${H - m.b + 18}" text-anchor="middle" class="ax">${d}</text>`).join('') +
+    `<text x="${(W / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle" class="ax">Study day</text>`;
+
+  const indiv = visible.map((s) => s.animals.map((id) => (byAnimal.get(id) || []).map((v) =>
+    `<circle cx="${X(v.day).toFixed(1)}" cy="${Y(v.value).toFixed(1)}" r="2" style="fill:${s.color}" class="indiv"/>`).join('')).join('')).join('');
+
+  const lines = visible.map((s) => {
+    const path = s.points.map((p, i) => `${i ? 'L' : 'M'}${X(p.day).toFixed(1)},${Y(p.mean).toFixed(1)}`).join('');
+    const bars = s.points.map((p) => {
+      const x = X(p.day).toFixed(1);
+      return `<line x1="${x}" x2="${x}" y1="${Y(p.mean - p.sd).toFixed(1)}" y2="${Y(p.mean + p.sd).toFixed(1)}" style="stroke:${s.color}" class="eb"/>`;
+    }).join('');
+    const dots = s.points.map((p) =>
+      `<circle cx="${X(p.day).toFixed(1)}" cy="${Y(p.mean).toFixed(1)}" r="3.5" style="fill:${s.color}"/>`).join('');
+    return `<path d="${path}" style="stroke:${s.color}" class="line"/>${bars}${dots}`;
+  }).join('');
+
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ep.label)} by study day, group mean and SD">${grid}${xAxis}${indiv}${lines}</svg><div class="tip" hidden></div>`;
+  chartModel = { W, m, x1, X, decimals: ep.decimals, visible, days: [...new Set(visible.flatMap((s) => s.points.map((p) => p.day)))].sort((a, b) => a - b) };
+}
+
+function renderSummary(ep, series) {
+  const vehicle = series[0];
+  const rows = series.filter((s) => !state.hidden.has(s.group.id)).map((s) => {
+    const first = s.points[0], last = s.points.at(-1);
+    if (!last) return '';
+    const ref = vehicle.points.find((p) => p.day === last.day);
+    const dBase = ((last.mean - first.mean) / first.mean) * 100;
+    const dVeh = s.group.id === vehicle.group.id || !ref ? null : ((last.mean - ref.mean) / ref.mean) * 100;
+    return `<tr><td>${esc(s.group.label)}</td><td class="num">${last.n}</td><td class="num">${fmt(first.mean, ep.decimals)}</td>
+      <td class="num">${fmt(last.mean, ep.decimals)} ± ${fmt(last.sd, ep.decimals)}</td><td class="num">Day ${last.day}</td>
+      <td class="num">${pct(dBase)}</td><td class="num">${pct(dVeh)}</td></tr>`;
+  }).join('');
+  $('#summary').innerHTML = `<thead><tr><th>Group</th><th class="num">n</th><th class="num">Baseline</th>
+    <th class="num">Final mean ± SD</th><th class="num">Final day</th><th class="num">Δ vs baseline</th><th class="num">Δ vs vehicle</th></tr></thead>
+    <tbody>${rows}</tbody>`;
+  $('#summary-note').textContent = `${ep.label} · vehicle is the reference for Δ vs vehicle`;
+}
+
+function renderAnimals(study, ep, byAnimal) {
+  const q = state.query.trim().toLowerCase();
+  const labels = Object.fromEntries(study.groups.map((g) => [g.id, g.label]));
+  const total = study.animals.length;
+  let rows = study.animals
+    .filter((a) => !state.hidden.has(a.group) && (!q || `${a.id} ${a.status} ${a.sex}`.toLowerCase().includes(q)))
+    .map((a) => {
+      const vals = byAnimal.get(a.id) || [];
+      const first = vals[0], last = vals.at(-1);
+      return {
+        id: a.id, label: labels[a.group], sex: a.sex, status: a.status,
+        note: a.excluded || (a.deathDay !== null ? `Found dead, day ${a.deathDay}` : ''),
+        lastDay: last ? last.day : null,
+        last: last ? last.value : null,
+        delta: first && last ? ((last.value - first.value) / first.value) * 100 : null,
+      };
+    });
+  const { key, dir } = state.sort;
+  rows.sort((a, b) => {
+    const x = a[key], y = b[key];
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (x > y ? 1 : x < y ? -1 : 0) * dir;
+  });
+  const cols = [['id', 'Animal'], ['label', 'Group'], ['sex', 'Sex'], ['status', 'Status'],
+    ['lastDay', 'Last day', 'num'], ['last', `Last ${ep.unit}`, 'num'], ['delta', 'Δ baseline', 'num']];
+  const head = cols.map(([k, label, cls]) => {
+    const active = state.sort.key === k;
+    const aria = active ? (dir > 0 ? 'ascending' : 'descending') : 'none';
+    return `<th scope="col" data-sort="${k}" aria-sort="${aria}" class="${cls || ''}">${label}</th>`;
+  }).join('');
+  const body = rows.map((r) => {
+    const cls = r.status === 'On study' ? 'ok' : r.status === 'Found dead' ? 'bad' : '';
+    return `<tr>
+      <td>${esc(r.id)}</td><td>${esc(r.label)}</td><td>${r.sex}</td>
+      <td><span class="pill ${cls}">${esc(r.status)}</span>${r.note ? `<div class="small muted">${esc(r.note)}</div>` : ''}</td>
+      <td class="num">${r.lastDay ?? '–'}</td><td class="num">${fmt(r.last, ep.decimals)}</td><td class="num">${pct(r.delta)}</td></tr>`;
+  }).join('');
+  $('#animals').innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body}</tbody>`;
+  $('#animals-note').textContent = `Showing ${rows.length} of ${total} animals. Δ baseline compares last value with first value for this endpoint.`;
+}
+
+function render() {
+  const study = studyById(state.studyId);
+  if (!study.endpoints.includes(state.endpoint)) state.endpoint = study.endpoints[0];
+  const ep = ENDPOINTS[state.endpoint];
+  const { series, byAnimal } = seriesFor(study, state.endpoint);
+  renderHeader(study);
+  renderKpis(study);
+  renderEndpointTabs(study);
+  renderLegend(study, series);
+  renderChart(ep, series, byAnimal, study);
+  renderSummary(ep, series);
+  renderAnimals(study, ep, byAnimal);
+}
+
+$('#study').addEventListener('change', (e) => {
+  state.studyId = e.target.value;
+  state.hidden = new Set();
+  state.endpoint = null;
+  render();
+});
+
+$('#search').addEventListener('input', (e) => { state.query = e.target.value; render(); });
+
+document.addEventListener('click', (e) => {
+  const endpoint = e.target.closest('[data-endpoint]');
+  const group = e.target.closest('[data-group]');
+  const sort = e.target.closest('[data-sort]');
+  if (endpoint) state.endpoint = endpoint.dataset.endpoint;
+  else if (group) {
+    const id = group.dataset.group;
+    state.hidden.has(id) ? state.hidden.delete(id) : state.hidden.add(id);
+  } else if (sort) {
+    const key = sort.dataset.sort;
+    state.sort = state.sort.key === key ? { key, dir: -state.sort.dir } : { key, dir: 1 };
+  } else return;
+  render();
+});
+
+$('#chart').addEventListener('pointermove', (e) => {
+  const svg = e.currentTarget.querySelector('svg');
+  const tip = e.currentTarget.querySelector('.tip');
+  if (!svg || !chartModel || !tip) return;
+  const rect = svg.getBoundingClientRect();
+  const { W, m, x1, X, decimals, visible, days } = chartModel;
+  const day = ((e.clientX - rect.left) / rect.width * W - m.l) / (W - m.l - m.r) * x1;
+  const best = days.reduce((a, d) => (Math.abs(d - day) < Math.abs(a - day) ? d : a), days[0]);
+  const rows = visible.map((s) => {
+    const p = s.points.find((q) => q.day === best);
+    return p ? `<div><i style="background:${s.color}"></i>${esc(s.group.label)}: <b>${fmt(p.mean, decimals)}</b> ± ${fmt(p.sd, decimals)} <span class="muted">(n=${p.n})</span></div>` : '';
+  }).join('');
+  tip.innerHTML = `<div class="tip-day">Day ${best}</div>${rows}`;
+  tip.hidden = false;
+  const left = (X(best) / W) * rect.width;
+  tip.style.left = `${left}px`;
+  tip.classList.toggle('flip', left > rect.width / 2);
+});
+$('#chart').addEventListener('pointerleave', (e) => {
+  const tip = e.currentTarget.querySelector('.tip');
+  if (tip) tip.hidden = true;
+});
+
+render();
+</script>
+</body>
+</html>
